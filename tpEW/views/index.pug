@@ -1,5 +1,57 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  style.
+      .header-container {
+        position: relative;
+        width: 100%;
+        height: 300px;
+      }
+      .header-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white; /* Cor do texto */
+        font-size: 24px; /* Tamanho da fonte */
+        text-align: center;
+        z-index: 1; /* Para texto ficar sobre a imagem imagem */
+      }
+      .header-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Imagem dá "fit" às medidas definidas */
+        opacity: 0.8;
+      }
+      .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.3);
+        z-index: 0;
+      }
+  body
+    header.w3-container.w3-center
+      .header-container
+        img.header-image(src='')
+        .overlay
+        h1.header-text Mapa das ruas de Braga
+
+    TODO -> LISTA COM O NOME DAS RUAS BEM FORMATADO
+
+    script.
+      const headerImage = document.querySelector('.header-image');
+      const headerText = document.querySelector('.header-text');
+      const images = !{JSON.stringify(images)};
+
+      function changeImage() {
+        const randomIndex = Math.floor(Math.random() * images.length);
+        const randomImage = images[randomIndex];
+        headerImage.src = '/images/' + randomImage;
+      }
+
+      changeImage();
+
+      setInterval(changeImage, 3000);

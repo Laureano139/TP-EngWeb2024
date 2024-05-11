@@ -13,11 +13,11 @@ db.once('open', () => {
 })
 
 var indexRouter = require('./routes/index');
-var ucRouter = require('./routes/uc');
-var equipaRouter = require('./routes/equipa');
-var projetoRouter = require('./routes/projeto');
-var entregaRouter = require('./routes/entrega');
-var userRouter = require('./routes/user');
+// var ucRouter = require('./routes/uc');
+// var equipaRouter = require('./routes/equipa');
+// var projetoRouter = require('./routes/projeto');
+// var entregaRouter = require('./routes/entrega');
+// var userRouter = require('./routes/user');
 
 const { v4: uuidv4 } = require('uuid'); 
 var session = require('express-session');
@@ -60,11 +60,11 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/', indexRouter);
-app.use('/uc', ucRouter);
-app.use('/equipa', equipaRouter);
-app.use('/projeto', projetoRouter);
-app.use('/entrega', entregaRouter);
-app.use('/user', userRouter);
+// app.use('/uc', ucRouter);
+// app.use('/equipa', equipaRouter);
+// app.use('/projeto', projetoRouter);
+// app.use('/entrega', entregaRouter);
+// app.use('/user', userRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

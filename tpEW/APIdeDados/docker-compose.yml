@@ -1,0 +1,14 @@
+
+version: '3.8'
+services:
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    depends_on:
+      - mongo-seed
+  mongo-seed:
+    image: mongo:latest
+    volumes:
+      - .\datasetRuasBraga\convertedJSONDataset\ruas.json:/datasetRuasBraga/convertedJSONDataset/ruas.json
+    command: mongoimport --host mongodb -d ruas -c ruas --type json --file /datasetRuasBraga/convertedJSONDataset/ruas.json --jsonArray

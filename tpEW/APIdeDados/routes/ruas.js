@@ -35,4 +35,22 @@ router.get('/:id', function(req, res) {
     .catch(erro => res.jsonp(erro))
 });
 
+router.post('/:id', function(req, res) {
+  Rua.update(req.params.id, req.body)
+    .then(data => res.jsonp(data))
+    .catch(erro => res.jsonp(erro))
+});
+
+router.put('/:id', function(req, res) {
+  Rua.insert(req.params.id, req.body)
+    .then(data => res.jsonp(data))
+    .catch(erro => res.jsonp(erro))
+});
+
+router.delete('/:id', function(req, res) {
+  Rua.remove(req.params.id)
+    .then(data => res.jsonp(data))
+    .catch(erro => res.jsonp(erro))
+});
+
 module.exports = router;

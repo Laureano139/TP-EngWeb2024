@@ -45,3 +45,28 @@ module.exports.listaRuasByLugar = async (lugar) => {
   .sort({ numero: 1 })
   .exec();
 };
+
+module.exports.update = Rua => {
+  return Rua.updateOne({ _id : Rua._id }, Rua)
+  .then(data => {
+    return data
+  })
+  .catch(erro => {
+    return erro
+  })
+}
+
+module.exports.insert = data => {
+  var novo = new Rua(data)
+  return novo.save()
+}
+
+module.exports.remove = id => {
+  return Rua.deleteOne({ _id : id })
+  .then(data => {
+    return data
+  })
+  .catch(erro => {
+    return erro
+  })
+}

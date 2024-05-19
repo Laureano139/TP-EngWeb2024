@@ -30,7 +30,6 @@ var figuraSchema = new mongoose.Schema({
 });
 
 const ruaSchema = new mongoose.Schema({
-    // _id: Number, sq meter numero a ser o id
     numero : Number,
     nome : String,
     pos : {

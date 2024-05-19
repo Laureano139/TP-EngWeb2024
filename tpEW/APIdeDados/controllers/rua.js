@@ -46,27 +46,25 @@ module.exports.listaRuasByLugar = async (lugar) => {
   .exec();
 };
 
-module.exports.update = Rua => {
-  return Rua.updateOne({ _id : Rua._id }, Rua)
-  .then(data => {
-    return data
-  })
-  .catch(erro => {
-    return erro
-  })
+module.exports.insert = r => {
+  if((Rua.find({_id : r._id}).exec()).length != 1){
+      var newRua = new Rua(r)
+      return newRua.save()
+  }
 }
 
-module.exports.insert = data => {
-  var novo = new Rua(data)
-  return novo.save()
+module.exports.deleteRua = async id => {
+  return Rua.deleteOne({_id : id})
+    .then(resposta => {
+      return resposta
+    })
+    .catch(erro => {
+      return erro
+    })
 }
 
-module.exports.remove = id => {
-  return Rua.deleteOne({ _id : id })
-  .then(data => {
-    return data
-  })
-  .catch(erro => {
-    return erro
-  })
+module.exports.update = (id, rua) => {
+    return Rua
+      .findByIdAndUpdate(id, rua, {new : true})
+      .exec()
 }

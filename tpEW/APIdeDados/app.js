@@ -12,7 +12,7 @@ db.once('open', () => {
   console.log("Conexão ao MongoDB realizada com sucesso")
 })
 
-var indexRouter = require('./routes/index');
+// var indexRouter = require('./routes/index');
 var ruaRouter = require('./routes/ruas');
 const { error } = require('console');
 
@@ -23,7 +23,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
+// app.use('/', indexRouter);
 app.use('/ruas', ruaRouter);
 
 // catch 404 and forward to error handler

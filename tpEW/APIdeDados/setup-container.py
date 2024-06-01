@@ -14,14 +14,14 @@ services:
   mongo-seed:
     image: mongo:latest
     volumes:
-      - {json_file_path}:/datasetRuasBraga/convertedJSONDataset/ruas.json
+      - /datasetRuasBraga/convertedJSONDataset/ruas.json
     command: mongoimport --host mongodb -d {db_name} -c {collection_name} --type json --file /datasetRuasBraga/convertedJSONDataset/ruas.json --jsonArray
 """
     with open("docker-compose.yml", "w") as f:
         f.write(docker_compose_template)
 
 def start_container():
-    subprocess.run(["docker-compose", "up", "-d"])
+    subprocess.run(["docker","compose", "up", "-d"])
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:

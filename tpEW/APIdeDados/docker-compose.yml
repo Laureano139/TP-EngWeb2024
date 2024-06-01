@@ -10,5 +10,5 @@ services:
   mongo-seed:
     image: mongo:latest
     volumes:
-      - ./datasetRuasBraga/convertedJSONDataset/ruas.json:/datasetRuasBraga/convertedJSONDataset/ruas.json
+      - /datasetRuasBraga/convertedJSONDataset/ruas.json
     command: mongoimport --host mongodb -d ruas -c ruas --type json --file /datasetRuasBraga/convertedJSONDataset/ruas.json --jsonArray

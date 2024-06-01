@@ -3,21 +3,46 @@ const { modelName } = require("../models/rua")
 var Rua = require("../models/rua")
 
 module.exports.list = async () => {
-  return await Rua
-    .find()
-    .exec();
+  const ruas = await Rua.find().exec(); // Use lean() to get plain JavaScript objects
+  return ruas.map(rua => ({
+    _id: rua._id,
+    numero: rua.numero,
+    nome: rua.nome,
+    pos: rua.pos,
+    figuras: rua.figuras,
+    paragrafo: rua.paragrafo,
+    casas: rua.casas
+  }));
 }
 
 module.exports.findById = id => {
   return Rua
-    .findOne({ _id : id })
-    .exec();
+  .findOne({ _id : id })
+  .exec()
+  .then(rua => ({
+      _id: rua._id,
+      numero: rua.numero,
+      nome: rua.nome,
+      pos: rua.pos,
+      figuras: rua.figuras,
+      paragrafo: rua.paragrafo,
+      casas: rua.casas
+    }));
 }
 
 module.exports.findRuaByNome = (nome) => {
   return Rua
   .findOne({nome: nome})
   .exec()
+  .then(rua => ({
+    _id: rua._id,
+    numero: rua.numero,
+    nome: rua.nome,
+    pos: rua.pos,
+    figuras: rua.figuras,
+    paragrafo: rua.paragrafo,
+    casas: rua.casas
+  }));
 };
 
 module.exports.listaRuasByData = async (data) => {
@@ -30,7 +55,16 @@ module.exports.listaRuasByData = async (data) => {
   })
   .setOptions({ sanitizeFilter: true })
   .sort({ numero: 1 })
-  .exec();
+  .exec()
+  .then(ruas => ruas.map(rua => ({
+      _id: rua._id,
+      numero: rua.numero,
+      nome: rua.nome,
+      pos: rua.pos,
+      figuras: rua.figuras,
+      paragrafo: rua.paragrafo,
+      casas: rua.casas
+  })));
 };
 
 module.exports.listaRuasByLugar = async (lugar) => {
@@ -43,7 +77,16 @@ module.exports.listaRuasByLugar = async (lugar) => {
   })
   .setOptions({ sanitizeFilter: true })
   .sort({ numero: 1 })
-  .exec();
+  .exec()
+  .then(ruas => ruas.map(rua => ({
+      _id: rua._id,
+      numero: rua.numero,
+      nome: rua.nome,
+      pos: rua.pos,
+      figuras: rua.figuras,
+      paragrafo: rua.paragrafo,
+      casas: rua.casas
+  })));
 };
 
 module.exports.insert = r => {

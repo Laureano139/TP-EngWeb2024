@@ -111,3 +111,28 @@ module.exports.update = (id, rua) => {
       .findByIdAndUpdate(id, rua, {new : true})
       .exec()
 }
+
+module.exports.adicionarComentario = (ruaID, comentario) => {
+  return Rua
+  .updateOne({_id : ruaID}, {$push: {comentarios: comentario}})
+  .then(resposta => {
+      return resposta;
+  })
+  .catch(erro => {
+      return erro;
+  });
+};
+
+module.exports.removerComentario = (commentID) => {
+  return Rua
+  .updateOne(
+      { "comentarios._id": commentID},
+      { $pull: { comentarios: { _id: commentID } } }
+    )
+  .then(resposta => {
+      return resposta;
+  })
+  .catch(erro => {
+      return erro;
+  });
+};

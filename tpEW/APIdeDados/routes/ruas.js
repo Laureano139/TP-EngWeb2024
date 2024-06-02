@@ -163,6 +163,17 @@ router.delete("/:id", function(req, res) {
     .catch(erro => res.jsonp(erro));
 });
 
+router.post("/post/:id", function(req,res,next) {
+  Rua.adicionarComentario(req.params.id, req.body)
+  .then(resp => { res.status(200).jsonp(resp) })
+  .catch(erro => { res.status(509).jsonp(erro) })
+})
+
+router.delete("/unpost/:id", function(req,res,next) {
+  Rua.removerComentario(req.params.id)
+  .then(resposta => { res.status(200).jsonp(resposta) })
+  .catch(erro => { res.status(509).jsonp(erro) })
+});
 
 router.put('/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: 'atual', maxCount: 10 }]), function(req, res, next) {
   // Primeiro, encontrar a rua atual para obter os caminhos das imagens antigas
@@ -257,6 +268,7 @@ router.put('/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: 'atu
     })
     .catch(erro => res.jsonp(erro));
 });
+
 
 
 module.exports = router;

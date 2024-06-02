@@ -40,10 +40,15 @@ var casasSchema = new mongoose.Schema({
     vista: String
 }, { _id: false });
 
+var comentarioSchema = new mongoose.Schema({
+    autor: String,
+    data: String,
+    texto: String
+});
 
 const ruaSchema = new mongoose.Schema({
-    _id: String, // Add _id here
-    numero: String, // Convert numero to String
+    _id: String,
+    numero: String,
     nome: String,
     pos: {
         latitude: Number,
@@ -54,7 +59,8 @@ const ruaSchema = new mongoose.Schema({
         refs: refSchema,
         texto: String
     },
-    casas: [casasSchema]
+    casas: [casasSchema],
+    comentarios: [comentarioSchema]
 }, { versionKey: false });
 
 module.exports = mongoose.model('ruas', ruaSchema);

@@ -17,10 +17,10 @@ var storage = multer.diskStorage({
   destination: function (req, file, cb) {
     let dir = ''
     if(file.fieldname.startsWith('imagem')){
-      dir = './imagem';
+      dir = '../Interface/public/imagem';
     }
     else if(file.fieldname.startsWith('atual')){
-      dir = './atual';
+      dir = '../Interface/public/atual';
     }
     ensureDirExists(dir);
     cb(null, dir)
@@ -103,7 +103,7 @@ router.post('/', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: 'atual
             _id: file.filename.split('.')[0],
             legenda: legenda, // Use a legenda correta para cada arquivo
             imagem: {
-              path: path.join('imagem', file.filename),
+              path: path.join('../imagem', file.filename),
               largura: null
             }
           });
@@ -112,7 +112,7 @@ router.post('/', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: 'atual
             _id: file.filename.split('.')[0],
             legenda: legenda, // Use a legenda correta para cada arquivo
             imagem: {
-              path: path.join('atual', file.filename),
+              path: path.join('../atual', file.filename),
               largura: null
             }
           });
@@ -144,6 +144,7 @@ router.delete("/:id", function(req, res) {
 
       // Deletar os arquivos de imagem
       imagePaths.forEach(imagePath => {
+        imagePath = "../Interface/public" + imagePath.slice(2);
         fs.unlink(imagePath, err => {
           if (err) {
             console.error(`Erro ao deletar o arquivo ${imagePath}:`, err);
@@ -210,7 +211,7 @@ router.put('/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: 'atu
                 _id: file.filename.split('.')[0],
                 legenda: legenda, // Use a legenda correta para cada arquivo
                 imagem: {
-                  path: path.join('imagem', file.filename),
+                  path: path.join('../imagem', file.filename),
                   largura: null
                 }
               });
@@ -220,7 +221,7 @@ router.put('/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: 'atu
                 _id: file.filename.split('.')[0],
                 legenda: legenda, // Use a legenda correta para cada arquivo
                 imagem: {
-                  path: path.join('atual', file.filename),
+                  path: path.join('../atual', file.filename),
                   largura: null
                 }
               });
@@ -235,6 +236,7 @@ router.put('/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: 'atu
       oldImagePaths.forEach(imagePath => {
         let oldFileName = path.basename(imagePath);
         if (!newFileNames.includes(oldFileName)) {
+          imagePath = "../Interface/public" + imagePath.slice(2);
           console.log(`Deletando arquivo ${imagePath}`);
           fs.unlink(imagePath, err => {
             if (err) {

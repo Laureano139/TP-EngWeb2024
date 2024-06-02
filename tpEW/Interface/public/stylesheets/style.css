@@ -6,3 +6,18 @@ body {
 a {
   color: #00B7FF;
 }
+
+.w3-third {
+  display: inline-block;
+  float: none;
+  vertical-align: top;
+}
+
+.descricao-box {
+  width: 80%;
+  margin: 0 auto; /* Centrar a box na página */
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}

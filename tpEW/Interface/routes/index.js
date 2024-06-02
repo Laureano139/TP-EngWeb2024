@@ -26,6 +26,24 @@ router.get('/delete/:id', function(req, res, next) {
   });
 });
 
+// Route for rendering the 'criar' page
+router.get('/criar', function(req, res) {
+  var date = new Date().toISOString().substring(0, 16);
+  res.render('novaRua', { "Data": date });
+});
+
+// Route for handling the form submission
+router.post('/criar', function(req, res) {
+  var rua = req.body.rua;
+  axios.post('http://localhost:1893/ruas/', { rua: rua })
+  .then(resp => {
+    res.redirect('/');
+  })
+  .catch(error => {
+    res.status(500).render('error', { "error": error });
+  });
+});
+
 router.get('/:id', function(req, res, next) {
   var date = new Date().toISOString().substring(0, 16);
   axios.get('http://localhost:1893/ruas/' + req.params.id)

@@ -1,0 +1,79 @@
+extends layout
+
+block content
+  .w3-card-4 
+    header.w3-container.w3-blue
+      h1 Adicionar Nova Rua
+
+    .w3-container
+      form.w3-container(method="post", action="/ruas", enctype="multipart/form-data")
+        fieldset 
+          legend Dados da Rua
+          label Número
+          input.w3-input.w3-round(type="text", name="numero")
+          label Nome
+          input.w3-input.w3-round(type="text", name="nome")
+          label Latitude
+          input.w3-input.w3-round(type="text", name="latitude")
+          label Longitude
+          input.w3-input.w3-round(type="text", name="longitude")
+        
+        fieldset 
+          legend Entidades
+          each n in [0,1,2,3,4]
+            label Entidade 
+            input.w3-input.w3-round(type="text", name="entidades[#{n}][nome]")
+            label Tipo
+            input.w3-input.w3-round(type="text", name="entidades[#{n}][tipo]")
+              
+        fieldset 
+          legend Lugares
+          each n in [0,1,2,3,4]
+            label Lugar #{n + 1}
+            input.w3-input.w3-round(type="text", name="lugares[#{n}][nome]")
+            label Norm
+            input.w3-input.w3-round(type="text", name="lugares[#{n}][norm]")
+
+        fieldset 
+          legend Datas
+          each n in [0,1,2,3,4]
+            label Data #{n + 1}
+            input.w3-input.w3-round(type="text", name="datas[#{n}]")
+
+        fieldset 
+          legend Texto de Descrição
+          label Texto
+          textarea.w3-input.w3-round(name="texto")
+
+        fieldset 
+          legend Casas
+          each n in [0,1,2,3,4]
+            label Número da Casa #{n + 1}
+            input.w3-input.w3-round(type="text", name="casas[#{n}][numero]")
+            label Enfiteutas
+            input.w3-input.w3-round(type="text", name="casas[#{n}][enfiteutas]")
+            label Foro
+            input.w3-input.w3-round(type="text", name="casas[#{n}][foro]")
+            label Descrição
+            textarea.w3-input.w3-round(name="casas[#{n}][desc][texto]")
+
+        fieldset 
+          legend Imagens
+          each n in [0,1,2,3,4]
+            label Imagem #{n + 1}
+            input.w3-input.w3-round(type="file", name="imagem")
+            label Legenda
+            input.w3-input.w3-round(type="text", name="legenda_imagem[#{n}]")
+
+        fieldset 
+          legend Vistas Atuais
+          each n in [0,1,2,3,4]
+            label Vista Atual #{n + 1}
+            input.w3-input.w3-round(type="file", name="atual")
+            label Legenda
+            input.w3-input.w3-round(type="text", name="legenda_atual[#{n}]")
+        
+        button.w3-btn.w3-blue.w3-mb-2(type="submit") Adicionar Rua
+
+    footer.w3-container.w3-blue
+      address Gerado por EngWeb 2024 em #{Data}

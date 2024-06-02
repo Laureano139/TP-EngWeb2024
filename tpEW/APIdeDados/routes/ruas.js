@@ -128,6 +128,12 @@ router.post('/', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: 'atual
     .catch(erro => res.jsonp(erro));
 });
 
+router.post("/post/:id", function(req,res,next) {
+  Rua.adicionarComentario(req.params.id, req.body)
+  .then(resp => { res.status(200).jsonp(resp) })
+  .catch(erro => { res.status(509).jsonp(erro) })
+})
+
 router.delete("/:id", function(req, res) {
   // Primeiro, encontrar a rua para obter os caminhos das imagens
   Rua.findById(req.params.id)
@@ -163,11 +169,7 @@ router.delete("/:id", function(req, res) {
     .catch(erro => res.jsonp(erro));
 });
 
-router.post("/post/:id", function(req,res,next) {
-  Rua.adicionarComentario(req.params.id, req.body)
-  .then(resp => { res.status(200).jsonp(resp) })
-  .catch(erro => { res.status(509).jsonp(erro) })
-})
+
 
 router.delete("/unpost/:id", function(req,res,next) {
   Rua.removerComentario(req.params.id)

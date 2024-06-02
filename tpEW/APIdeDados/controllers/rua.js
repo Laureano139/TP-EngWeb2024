@@ -11,7 +11,8 @@ module.exports.list = async () => {
     pos: rua.pos,
     figuras: rua.figuras,
     paragrafo: rua.paragrafo,
-    casas: rua.casas
+    casas: rua.casas,
+    comentarios: rua.comentarios
   }));
 }
 
@@ -26,7 +27,8 @@ module.exports.findById = id => {
       pos: rua.pos,
       figuras: rua.figuras,
       paragrafo: rua.paragrafo,
-      casas: rua.casas
+      casas: rua.casas,
+      comentarios: rua.comentarios
     }));
 }
 
@@ -41,7 +43,8 @@ module.exports.findRuaByNome = (nome) => {
     pos: rua.pos,
     figuras: rua.figuras,
     paragrafo: rua.paragrafo,
-    casas: rua.casas
+    casas: rua.casas,
+    comentarios: rua.comentarios
   }));
 };
 
@@ -63,7 +66,8 @@ module.exports.listaRuasByData = async (data) => {
       pos: rua.pos,
       figuras: rua.figuras,
       paragrafo: rua.paragrafo,
-      casas: rua.casas
+      casas: rua.casas,
+      comentarios: rua.comentarios
   })));
 };
 
@@ -85,7 +89,8 @@ module.exports.listaRuasByLugar = async (lugar) => {
       pos: rua.pos,
       figuras: rua.figuras,
       paragrafo: rua.paragrafo,
-      casas: rua.casas
+      casas: rua.casas,
+      comentarios: rua.comentarios
   })));
 };
 

@@ -6,9 +6,11 @@ block content
       h1 Adicionar Nova Rua
 
     .w3-container
-      form.w3-container(method="post", action="/ruas", enctype="multipart/form-data")
-        fieldset 
+      form.w3-container(method="post", action="/criar", enctype="multipart/form-data")
+        fieldset
           legend Dados da Rua
+          label ID 
+          input.w3-input.w3-round(type="text", name="id")
           label Número
           input.w3-input.w3-round(type="text", name="numero")
           label Nome
@@ -20,17 +22,17 @@ block content
         
         fieldset 
           legend Entidades
-            label Entidade 
-            input.w3-input.w3-round(type="text", name="entidades[0][nome]")
-            label Tipo
-            input.w3-input.w3-round(type="text", name="entidades[0][tipo]")
+          label Nome 
+          input.w3-input.w3-round(type="text", name="entidades[0][nome]")
+          label Tipo
+          input.w3-input.w3-round(type="text", name="entidades[0][tipo]")
               
         fieldset 
           legend Lugares
           #lugar-fields
             each n in [0,1]
               .lugar-field
-                label Lugar #{n + 1}
+                label Nome #{n + 1}
                 input.w3-input.w3-round(type="text", name="lugares[#{n}][nome]")
                 label Norm
                 input.w3-input.w3-round(type="text", name="lugares[#{n}][norm]")

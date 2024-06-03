@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var axios = require('axios');
-
+var passport = require('passport');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -14,6 +14,25 @@ router.get('/', function(req, res, next) {
   .catch(error => {
     res.status(500).render('error', { "error": error });
   });
+});
+
+// This function will be called if authentication was successful.
+router.post('/login', passport.authenticate('local'), function(req, res) {
+  res.redirect('/protegida');
+});
+
+function verificaAutenticacao(req, res, next){
+  console.log("User (verif.): " + JSON.stringify(req.user))
+  if(req.isAuthenticated()){
+    next();
+  }
+  else{
+    res.redirect('/login');
+  }
+}
+
+router.get('/protegida', verificaAutenticacao, (req,res) => {
+  res.send("Atingiste a área protegida!!!" + "User: " + JSON.stringify(req.user));
 });
 
 router.get('/delete/:id', function(req, res, next) {

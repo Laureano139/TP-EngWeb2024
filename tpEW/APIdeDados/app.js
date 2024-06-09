@@ -9,7 +9,7 @@ mongoose.connect(mongoDB)
 var db = mongoose.connection
 db.on('error', console.error.bind(console, 'Erro de conexão ao MongoDB'))
 db.once('open', () => {
-  console.log("Conexão ao MongoDB realizada com sucesso")
+  console.log("Conexão ao MongoDB realizada com sucesso!!")
 })
 
 // var indexRouter = require('./routes/index');

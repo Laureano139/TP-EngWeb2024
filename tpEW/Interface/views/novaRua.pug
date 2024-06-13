@@ -57,7 +57,6 @@ block content
           label.w3-label(_for="texto") Descrição
           textarea.w3-input(name="texto", required)
 
-        // Seção para Casas
         .w3-section
           label.w3-label Casas
           .casas-container
@@ -70,7 +69,7 @@ block content
               input.w3-input(type="text", name="casas[desc][refs][lugares][]" placeholder="Referências de Lugares (JSON)")
               input.w3-input(type="text", name="casas[desc][refs][datas][]" placeholder="Referências de Datas (JSON)")
           button.w3-button.w3-green(type="button", onclick="addCasa()") Adicionar Casa
-
+      
         // Seção para Imagens
         .w3-section
           label.w3-label(_for="imagem") Imagem
@@ -123,3 +122,4 @@ block content
       div.innerHTML = '<input class="w3-input" type="text" name="casas[numero][]" placeholder="Número da Casa"><input class="w3-input" type="text" name="casas[enfiteutas][]" placeholder="Enfiteutas"><input class="w3-input" type="text" name="casas[foro][]" placeholder="Foro"><textarea class="w3-input" name="casas[desc][texto][]" placeholder="Descrição"></textarea><input class="w3-input" type="text" name="casas[desc][refs][entidades][]" placeholder="Referências de Entidades (JSON)"><input class="w3-input" type="text" name="casas[desc][refs][lugares][]" placeholder="Referências de Lugares (JSON)"><input class="w3-input" type="text" name="casas[desc][refs][datas][]" placeholder="Referências de Datas (JSON)">';
       container.appendChild(div);
     }
+  

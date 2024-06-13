@@ -150,12 +150,15 @@ router.post('/criar', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: '
     }
   }
 
+
   // Processar datas
   if (req.body.datas) {
     rua.paragrafo.refs.datas = req.body.datas;
   }
 
-  // Processar casas
+  console.log('ola');
+
+  
   if (req.body.casas && req.body.casas.numero) {
     for (let i = 0; i < req.body.casas.numero.length; i++) {
       rua.casas.push({
@@ -173,7 +176,7 @@ router.post('/criar', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: '
       });
     }
   }
-
+  
   // Processar figuras (imagens)
   if (req.files) {
     Object.keys(req.files).forEach(key => {
@@ -204,17 +207,20 @@ router.post('/criar', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: '
   }
 
   console.log('Creating rua:', rua);
-
+  res.status(200).redirect('/');
+  
+  
   // Enviar requisição para o serviço externo (exemplo com Axios)
   axios.post('http://localhost:1893/ruas/', rua)
     .then(resp => {
       console.log('Response:', resp.data);
-      res.status(200).redirect('/'); // Redirecionar após sucesso
+       // Redirecionar após sucesso
     })
     .catch(error => {
       console.error('Error:', error);
       res.status(500).render('error', { error: error }); // Renderizar página de erro em caso de falha
     });
+    
 });
 
 

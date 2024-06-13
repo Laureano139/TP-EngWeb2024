@@ -7,168 +7,119 @@ block content
 
     .w3-container
       form.w3-container(method="post", action="/criar", enctype="multipart/form-data")
-        fieldset
-          legend Dados da Rua
-          label ID 
-          input.w3-input.w3-round(type="text", name="id")
-          label Número
-          input.w3-input.w3-round(type="text", name="numero")
-          label Nome
-          input.w3-input.w3-round(type="text", name="nome")
-          label Latitude
-          input.w3-input.w3-round(type="text", name="latitude")
-          label Longitude
-          input.w3-input.w3-round(type="text", name="longitude")
-        
-        fieldset 
-          legend Entidades
-          label Nome 
-          input.w3-input.w3-round(type="text", name="entidades[0][nome]")
-          label Tipo
-          input.w3-input.w3-round(type="text", name="entidades[0][tipo]")
-              
-        fieldset 
-          legend Lugares
-          #lugar-fields
-            each n in [0,1]
-              .lugar-field
-                label Nome #{n + 1}
-                input.w3-input.w3-round(type="text", name="lugares[#{n}][nome]")
-                label Norm
-                input.w3-input.w3-round(type="text", name="lugares[#{n}][norm]")
-          .spacer(style="margin-top: 20px;")
-          button#add-lugar.w3-btn.w3-green(type="button") +
+        .w3-section
+          label.w3-label(_for="_id") ID
+          input.w3-input(type="text", name="_id", required)
 
-        fieldset 
-          legend Datas
-          #data-fields
-            each n in [0,1]
-              .data-field
-                label Data #{n + 1}
-                input.w3-input.w3-round(type="text", name="datas[#{n}]")
-          .spacer(style="margin-top: 20px;")
-          button#add-data.w3-btn.w3-green(type="button") +
+        .w3-section
+          label.w3-label(_for="numero") Número
+          input.w3-input(type="text", name="numero", required)
 
-        fieldset 
-          legend Texto de Descrição
-          label Texto
-          textarea.w3-input.w3-round(name="texto")
+        .w3-section
+          label.w3-label(_for="nome") Nome
+          input.w3-input(type="text", name="nome", required)
 
-        fieldset 
-          legend Casas
-          #casa-fields
-            each n in [0,1]
-              .casa-field
-                label Número da Casa #{n + 1}
-                input.w3-input.w3-round(type="text", name="casas[#{n}][numero]")
-                label Enfiteutas
-                input.w3-input.w3-round(type="text", name="casas[#{n}][enfiteutas]")
-                label Foro
-                input.w3-input.w3-round(type="text", name="casas[#{n}][foro]")
-                label Descrição
-                textarea.w3-input.w3-round(name="casas[#{n}][desc][texto]")
-          .spacer(style="margin-top: 20px;")
-          button#add-casa.w3-btn.w3-green(type="button") +
+        .w3-section
+          label.w3-label(_for="latitude") Latitude
+          input.w3-input(type="text", name="latitude", required)
 
-        fieldset 
-          legend Imagens
-          #image-fields
-            each n in [0,1]
-              .image-field
-                label Imagem #{n + 1}
-                input.w3-input.w3-round(type="file", name="imagem[#{n}]")
-                label Legenda
-                input.w3-input.w3-round(type="text", name="legenda_imagem[#{n}]")
-          .spacer(style="margin-top: 20px;")
-          button#add-image.w3-btn.w3-green(type="button") +
+        .w3-section
+          label.w3-label(_for="longitude") Longitude
+          input.w3-input(type="text", name="longitude", required)
 
-        fieldset 
-          legend Vistas Atuais
-          #vista-fields
-            each n in [0,1]
-              .vista-field
-                label Vista Atual #{n + 1}
-                input.w3-input.w3-round(type="file", name="atual[#{n}]")
-                label Legenda
-                input.w3-input.w3-round(type="text", name="legenda_atual[#{n}]")
-          .spacer(style="margin-top: 20px;")
-          button#add-vista.w3-btn.w3-green(type="button") +
-        
-        button.w3-btn.w3-blue.w3-mb-2(type="submit") Adicionar Rua
+        // Seção para Entidades
+        .w3-section
+          label.w3-label Entidades
+          .entidades-container
+            .entidade
+              input.w3-input(type="text", name="entidades[nome][]" placeholder="Nome da Entidade")
+              input.w3-input(type="text", name="entidades[tipo][]" placeholder="Tipo da Entidade")
+          button.w3-button.w3-green(type="button", onclick="addEntidade()") Adicionar Entidade
 
-    footer.w3-container.w3-blue
-      address Gerado por EngWeb 2024 em #{Data}
+        // Seção para Lugares
+        .w3-section
+          label.w3-label Lugares
+          .lugares-container
+            .lugar
+              input.w3-input(type="text", name="lugares[nome][]" placeholder="Nome do Lugar")
+              input.w3-input(type="text", name="lugares[norm][]" placeholder="Norm (opcional)")
+          button.w3-button.w3-green(type="button", onclick="addLugar()") Adicionar Lugar
+
+        // Seção para Datas
+        .w3-section
+          label.w3-label Datas
+          .datas-container
+            .data
+              input.w3-input(type="text", name="datas[]" placeholder="Data")
+          button.w3-button.w3-green(type="button", onclick="addData()") Adicionar Data
+
+        .w3-section
+          label.w3-label(_for="texto") Descrição
+          textarea.w3-input(name="texto", required)
+
+        // Seção para Casas
+        .w3-section
+          label.w3-label Casas
+          .casas-container
+            .casa
+              input.w3-input(type="text", name="casas[numero][]" placeholder="Número da Casa")
+              input.w3-input(type="text", name="casas[enfiteutas][]" placeholder="Enfiteutas")
+              input.w3-input(type="text", name="casas[foro][]" placeholder="Foro")
+              textarea.w3-input(name="casas[desc][texto][]" placeholder="Descrição")
+              input.w3-input(type="text", name="casas[desc][refs][entidades][]" placeholder="Referências de Entidades (JSON)")
+              input.w3-input(type="text", name="casas[desc][refs][lugares][]" placeholder="Referências de Lugares (JSON)")
+              input.w3-input(type="text", name="casas[desc][refs][datas][]" placeholder="Referências de Datas (JSON)")
+          button.w3-button.w3-green(type="button", onclick="addCasa()") Adicionar Casa
+
+        // Seção para Imagens
+        .w3-section
+          label.w3-label(_for="imagem") Imagem
+          input.w3-input(type="file", name="imagem")
+
+        .w3-section
+          label.w3-label(_for="legenda_imagem[0]") Legenda da Imagem
+          input.w3-input(type="text", name="legenda_imagem[0]")
+
+        .w3-section
+          label.w3-label(_for="atual") Atual
+          input.w3-input(type="file", name="atual")
+
+        .w3-section
+          label.w3-label(_for="legenda_atual[0]") Legenda Atual
+          input.w3-input(type="text", name="legenda_atual[0]")
+
+        .w3-section
+          button.w3-button.w3-blue(type="submit") Adicionar Rua
 
   script.
-    document.addEventListener('DOMContentLoaded', () => {
-      const addFieldHandler = (addButtonId, fieldsContainerId, fieldClass, fieldTemplate) => {
-        const addButton = document.getElementById(addButtonId);
-        const fieldsContainer = document.getElementById(fieldsContainerId);
+    function addEntidade() {
+      var container = document.querySelector('.entidades-container');
+      var div = document.createElement('div');
+      div.className = 'entidade';
+      div.innerHTML = '<input class="w3-input" type="text" name="entidades[nome][]" placeholder="Nome da Entidade"><input class="w3-input" type="text" name="entidades[tipo][]" placeholder="Tipo da Entidade">';
+      container.appendChild(div);
+    }
 
-        addButton.addEventListener('click', () => {
-          const fields = document.querySelectorAll(`#${fieldsContainerId} .${fieldClass}`);
-          const fieldCount = fields.length;
-          const newField = document.createElement('div');
-          newField.className = fieldClass;
-          newField.innerHTML = fieldTemplate(fieldCount);
+    function addLugar() {
+      var container = document.querySelector('.lugares-container');
+      var div = document.createElement('div');
+      div.className = 'lugar';
+      div.innerHTML = '<input class="w3-input" type="text" name="lugares[nome][]" placeholder="Nome do Lugar"><input class="w3-input" type="text" name="lugares[norm][]" placeholder="Norm (opcional)">';
+      container.appendChild(div);
+    }
 
-          fieldsContainer.appendChild(newField);
+    function addData() {
+      var container = document.querySelector('.datas-container');
+      var div = document.createElement('div');
+      div.className = 'data';
+      div.innerHTML = '<input class="w3-input" type="text" name="datas[]" placeholder="Data">';
+      container.appendChild(div);
+    }
 
-          newField.querySelector('.remove-' + fieldClass).addEventListener('click', () => {
-            newField.remove();
-            // Atualizar índices dos campos restantes
-            const remainingFields = document.querySelectorAll(`#${fieldsContainerId} .${fieldClass}`);
-            remainingFields.forEach((field, index) => {
-              field.querySelector('label').innerText = field.querySelector('label').innerText.replace(/\d+/, index + 1);
-              Array.from(field.querySelectorAll('input, textarea')).forEach((input) => {
-                input.name = input.name.replace(/\[\d+\]/, `[${index}]`);
-              });
-            });
-          });
-        });
-      };
-
-      addFieldHandler('add-image', 'image-fields', 'image-field', (index) => `
-        <label>Imagem ${index + 1}</label>
-        <input class="w3-input w3-round" type="file" name="imagem[${index}]">
-        <label>Legenda</label>
-        <input class="w3-input w3-round" type="text" name="legenda_imagem[${index}]">
-        <button type="button" class="remove-image-field w3-btn w3-red">Remover</button>
-      `);
-
-      addFieldHandler('add-lugar', 'lugar-fields', 'lugar-field', (index) => `
-        <label>Lugar ${index + 1}</label>
-        <input class="w3-input w3-round" type="text" name="lugares[${index}][nome]">
-        <label>Norm</label>
-        <input class="w3-input w3-round" type="text" name="lugares[${index}][norm]">
-        <button type="button" class="remove-lugar-field w3-btn w3-red">Remover</button>
-      `);
-
-      addFieldHandler('add-data', 'data-fields', 'data-field', (index) => `
-        <label>Data ${index + 1}</label>
-        <input class="w3-input w3-round" type="text" name="datas[${index}]">
-        <button type="button" class="remove-data-field w3-btn w3-red">Remover</button>
-      `);
-
-      addFieldHandler('add-casa', 'casa-fields', 'casa-field', (index) => `
-        <label>Número da Casa ${index + 1}</label>
-        <input class="w3-input w3-round" type="text" name="casas[${index}][numero]">
-        <label>Enfiteutas</label>
-        <input class="w3-input w3-round" type="text" name="casas[${index}][enfiteutas]">
-        <label>Foro</label>
-        <input class="w3-input w3-round" type="text" name="casas[${index}][foro]">
-        <label>Descrição</label>
-        <textarea class="w3-input w3-round" name="casas[${index}][desc][texto]"></textarea>
-        <button type="button" class="remove-casa-field w3-btn w3-red">Remover</button>
-      `);
-
-      addFieldHandler('add-vista', 'vista-fields', 'vista-field', (index) => `
-        <label>Vista Atual ${index + 1}</label>
-        <input class="w3-input w3-round" type="file" name="atual[${index}]">
-        <label>Legenda</label>
-        <input class="w3-input w3-round" type="text" name="legenda_atual[${index}]">
-        <button type="button" class="remove-vista-field w3-btn w3-red">Remover</button>
-      `);
-    });
-
-    // .spacer(style="margin-top: 20px;") adiciona espaço para botão 
+    function addCasa() {
+      var container = document.querySelector('.casas-container');
+      var div = document.createElement('div');
+      div.className = 'casa';
+      div.innerHTML = '<input class="w3-input" type="text" name="casas[numero][]" placeholder="Número da Casa"><input class="w3-input" type="text" name="casas[enfiteutas][]" placeholder="Enfiteutas"><input class="w3-input" type="text" name="casas[foro][]" placeholder="Foro"><textarea class="w3-input" name="casas[desc][texto][]" placeholder="Descrição"></textarea><input class="w3-input" type="text" name="casas[desc][refs][entidades][]" placeholder="Referências de Entidades (JSON)"><input class="w3-input" type="text" name="casas[desc][refs][lugares][]" placeholder="Referências de Lugares (JSON)"><input class="w3-input" type="text" name="casas[desc][refs][datas][]" placeholder="Referências de Datas (JSON)">';
+      container.appendChild(div);
+    }

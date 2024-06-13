@@ -71,62 +71,15 @@ router.get('/:id', function(req, res) {
 });
 
 
-router.post('/', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: 'atual', maxCount: 10 }]), function(req, res) {
+router.post('/', function(req, res) {
   console.log(req.body)
-  var rua = {
-    _id: req.body._id,
-    numero: req.body.numero,
-    nome: req.body.nome,
-    pos: {
-      latitude: req.body.latitude,
-      longitude: req.body.longitude
-    },
-    figuras: [],
-    paragrafo: {
-      refs: {
-        entidades: JSON.parse(req.body.entidades || '[]'),
-        lugares: JSON.parse(req.body.lugares || '[]'),
-        datas: JSON.parse(req.body.datas || '[]')
-      },
-      texto: req.body.texto
-    },
-    casas: JSON.parse(req.body.casas || '[]')
-  };
-
-  if (req.files) {
-    Object.keys(req.files).forEach(key => {
-      req.files[key].forEach((file, index) => {
-        let legendaKey = 'legenda_' + key;
-        let legenda = req.body[legendaKey] && req.body[legendaKey][index] ? req.body[legendaKey][index] : req.body[legendaKey];
-        if (key.startsWith('imagem')) {
-          rua.figuras.push({
-            _id: file.filename.split('.')[0],
-            legenda: legenda, // Use a legenda correta para cada arquivo
-            imagem: {
-              path: path.join('../imagem', file.filename),
-              largura: null
-            }
-          });
-        } else if (key.startsWith('atual')) {
-          rua.figuras.push({
-            _id: file.filename.split('.')[0],
-            legenda: legenda, // Use a legenda correta para cada arquivo
-            imagem: {
-              path: path.join('../atual', file.filename),
-              largura: null
-            }
-          });
-        }
-      });
-    });
-  }
-
-  Rua.insert(rua)
+  Rua.insert(req.body)
     .then(data => {
       res.status(201).jsonp(data);
     })
     .catch(erro => res.jsonp(erro));
 });
+
 
 router.post("/post/:id", function(req,res,next) {
   Rua.adicionarComentario(req.params.id, req.body)
@@ -135,38 +88,9 @@ router.post("/post/:id", function(req,res,next) {
 })
 
 router.delete("/:id", function(req, res) {
-  // Primeiro, encontrar a rua para obter os caminhos das imagens
-  Rua.findById(req.params.id)
-    .then(data => {
-      if (!data) {
-        return res.status(404).json({ message: "Rua não encontrada" });
-      }
-
-      // Coletar todos os caminhos das imagens
-      let imagePaths = [];
-      data.figuras.forEach(figura => {
-        imagePaths.push(figura.imagem.path);
-      });
-
-      // Deletar os arquivos de imagem
-      imagePaths.forEach(imagePath => {
-        imagePath = "../Interface/public" + imagePath.slice(2);
-        fs.unlink(imagePath, err => {
-          if (err) {
-            console.error(`Erro ao deletar o arquivo ${imagePath}:`, err);
-          } else {
-            console.log(`Arquivo ${imagePath} deletado com sucesso`);
-          }
-        });
-      });
-
-      // Deletar o registro do banco de dados
-      return Rua.deleteRua(req.params.id)
-        .then(() => {
-          res.jsonp({ message: "Rua e suas imagens deletadas com sucesso" });
-        });
-    })
-    .catch(erro => res.jsonp(erro));
+  Rua.deleteRua(req.params.id)
+    .then(data => res.jsonp(data))
+    .catch(erro => res.jsonp(erro))
 });
 
 

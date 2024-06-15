@@ -1,0 +1,24 @@
+[
+  {
+    "username": "user1",
+    "password": "password1",
+    "name": "User One",
+    "email": "user1@example.com",
+    "filiation": "Filiation1",
+    "level": "Admin",
+    "dateCreated": "2022-01-01",
+    "dateLastAccess": "2022-01-02",
+    "active": true
+  },
+  {
+    "username": "user2",
+    "password": "password2",
+    "name": "User Two",
+    "email": "user2@example.com",
+    "filiation": "Filiation2",
+    "level": "Consumidor",
+    "dateCreated": "2022-01-03",
+    "dateLastAccess": "2022-01-04",
+    "active": false
+  }
+]

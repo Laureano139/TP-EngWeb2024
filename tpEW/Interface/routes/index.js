@@ -1,10 +1,40 @@
 var express = require('express');
 var router = express.Router();
 var axios = require('axios');
-var passport = require('passport');
+var jwt = require('jsonwebtoken');
 var multer  = require('multer');
 var fs = require('fs');
 var path = require('path');
+
+
+function verificaToken(req, res, next){
+  var myToken 
+  if(req.query && req.query.token)
+      myToken = req.query.token;
+  else if(req.body && req.body.token) 
+      myToken = req.body.token;
+  else if(req.cookies && req.cookies.token)
+      myToken = req.cookies.token
+  else
+      myToken = false;
+
+  if(myToken){
+      jwt.verify(myToken, "EngWeb2023RuasDeBraga", function(e, payload){
+      if(e){
+          res.status(401).jsonp({error: e})
+      }
+      else{
+          next()
+      }
+    })
+  }else{
+      res.status(401).jsonp({error: "Token inexistente!!"})
+    }
+}
+
+
+
+
 
 function ensureDirExists(dir) {
   if (!fs.existsSync(dir)) {
@@ -33,8 +63,33 @@ var storage = multer.diskStorage({
 var upload = multer({ storage: storage });
 
 
-/* GET home page. */
+/* GET pagina com todas as ruas. */
 router.get('/', function(req, res, next) {
+  levelUser= "Utilizador"
+  tokenBool = false
+  if(req.cookies && req.cookies.token){
+    token = req.cookies.token
+    tokenBool = true
+
+    try {
+      const tk = jwt.verify(token, 'EngWeb2023RuasDeBraga');
+      levelUser = tk.level;
+    } catch (e) {
+      tokenBool=false
+    }
+  }
+
+  let q = ""
+    
+  if (req.query && "field" in req.query && "text" in req.query && req.query.text.trim().length > 0)
+  {
+    if (req.query.field == "nome")
+      q = `?nome_like=.*(?i)${req.query.text}.*`
+    else
+      q = `/${req.query.field}/${req.query.text}`
+  }
+
+
   var date = new Date().toISOString().substring(0, 16);
   axios.get('http://localhost:1893/ruas/')
   .then(resp => {
@@ -46,24 +101,10 @@ router.get('/', function(req, res, next) {
   });
 });
 
-// This function will be called if authentication was successful.
-router.post('/login', passport.authenticate('local'), function(req, res) {
-  res.redirect('/protegida');
-});
 
-function verificaAutenticacao(req, res, next){
-  console.log("User (verif.): " + JSON.stringify(req.user))
-  if(req.isAuthenticated()){
-    next();
-  }
-  else{
-    res.redirect('/login');
-  }
-}
 
-router.get('/protegida', verificaAutenticacao, (req,res) => {
-  res.send("Atingiste a área protegida!!!" + "User: " + JSON.stringify(req.user));
-});
+
+// Apagar uma Rua
 router.get('/delete/:id', function(req, res) {
   axios.get('http://localhost:1893/ruas/' + req.params.id)
   .then(resp => { 
@@ -99,13 +140,13 @@ router.get('/delete/:id', function(req, res) {
 
 
 
+
+
+// Criar uma Nova Rua
 router.get('/criar', function(req, res) {
   var date = new Date().toISOString().substring(0, 16);
   res.render('novaRua', { "Data": date });
 });
-
-
-
 
 
 router.post('/criar', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: 'atual', maxCount: 10 }]), function(req, res) {  
@@ -227,14 +268,6 @@ router.post('/criar', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: '
 
 
 
-
-
-
-
-
-
-
-
 router.get('/:id', function(req, res, next) {
   var date = new Date().toISOString().substring(0, 16);
   axios.get('http://localhost:1893/ruas/' + req.params.id)
@@ -273,6 +306,40 @@ router.get('/:id', function(req, res, next) {
 });
 
 
+
+
+
+
+// AUTENTICAÇÃO
+
+router.get('/login', function(req, res){
+
+  tokenBool = false
+  if(req.cookies && req.cookies.token){
+    token = req.cookies.token
+    tokenBool = true
+
+    jwt.verify(token, 'EngWeb2023RuasDeBraga',(e, payload)=>{
+      if(e){
+        console.log('Token is expired');
+        tokenBool= false
+      }
+    })
+  }
+
+  res.render('login', {t: tokenBool})
+})
+
+router.post('/login', function(req, res){
+  axios.post('http://localhost:8003/users/login', req.body)
+    .then(response => {
+      res.cookie('token', response.data.token)
+      res.redirect('/')
+    })
+    .catch(e =>{
+      res.render('error', {error: e, message: "Credenciais inválidas"})
+    })
+})
 
 
 module.exports = router;

@@ -7,19 +7,21 @@ var auth = require('../auth/auth')
 
 var User = require('../controllers/users')
 
-router.get('/', auth.acessVerification, function(req, res){
+
+/* GET users listing. */
+router.get('/', auth.verificaAcesso, function(req, res){
   User.list()
     .then(dados => res.status(200).jsonp({dados: dados}))
     .catch(e => res.status(500).jsonp({error: e}))
 })
 
-router.get('/:id', auth.acessVerification, function(req, res){
+router.get('/:id', auth.verificaAcesso, function(req, res){
   User.getUser(req.params.id)
     .then(dados => res.status(200).jsonp({dados: dados}))
     .catch(e => res.status(500).jsonp({error: e}))
 })
 
-router.post('/', auth.acessVerification, function(req, res){
+router.post('/', auth.verificaAcesso, function(req, res){
   User.addUser(req.body)
     .then(dados => {
       console.log(dados)
@@ -28,33 +30,36 @@ router.post('/', auth.acessVerification, function(req, res){
     .catch(e => res.status(500).jsonp({error: e}))
 })
 
+
+
 router.get('/level/:username', (req,res) =>{
+  console.log("Oiii")
   User.getLevel(req.params.username)
   .then(dados => {
     console.log(dados)
     res.status(201).jsonp({dados: dados})
   })
   .catch(e => {
-    console.log("Server error!")
+    console.log("Errrrooo")
     res.status(500).jsonp({error: e})})
 })
 
 router.post('/register', function(req, res) {
   var d = new Date().toISOString().substring(0,19)
   userModel.register(new userModel({ username: req.body.username, name: req.body.name, email:req.body.email,
-                filiation: req.body.filiation,level: req.body.level, active: true, creationDate: d }), 
+                filiation: req.body.filiation,level: req.body.level, active: true, dateCreated: d }), 
                 req.body.password, 
                 function(err, user) {
                   if (err) 
-                    res.jsonp({error: err, message: "Registration error: " + err})
+                    res.jsonp({error: err, message: "Register error: " + err})
                   else{
                     passport.authenticate("local")(req,res,function(){
                       jwt.sign({ username: req.user.username, level: req.user.level,
-                        sub: 'Mapa das Ruas de Braga EngWeb2024'}, 
-                        "MapaDasRuasDeBraga2024",
+                        sub: 'Ruas de Braga ENGWEB2023'}, 
+                        "EngWeb2023RuasDeBraga",
                         {expiresIn: 3600},
                         function(e, token) {
-                          if(e) res.status(500).jsonp({error: "Erro ao gerar o token de sessão: " + e}) 
+                          if(e) res.status(500).jsonp({error: "Erro na geração do token: " + e}) 
                           else res.status(201).jsonp({token: token})
                         });
                     })
@@ -63,17 +68,22 @@ router.post('/register', function(req, res) {
 })
   
 router.post('/login', passport.authenticate('local'), function(req, res){
+
+  
   User.getLevel(req.user.username)
     .then(response =>{
+
       jwt.sign({ username: req.user.username, level: response.level,
-        sub: 'Mapa das Ruas de Braga EngWeb2024'}, 
-        "MapaDasRuasDeBraga2024",
+        sub: 'Ruas de Braga ENGWEB2023'}, 
+        "EngWeb2023RuasDeBraga",
         {expiresIn: 3600},
         function(e, token) {
           if(e) res.status(500).jsonp({error: "Erro na geração do token: " + e}) 
           else res.status(201).jsonp({token: token})
       });
+
     })
+
     .catch(e =>{
         console.log("Ero")
        res.status(507).jsonp({error: e})})
@@ -81,7 +91,7 @@ router.post('/login', passport.authenticate('local'), function(req, res){
 
 
 
-router.put('/:id', auth.acessVerification, function(req, res) {
+router.put('/:id', auth.verificaAcesso, function(req, res) {
   User.updateUser(req.params.id, req.body)
     .then(dados => {
       res.jsonp(dados)
@@ -89,7 +99,7 @@ router.put('/:id', auth.acessVerification, function(req, res) {
     .catch(e => res.status(506).jsonp({error: e}))
 })
 
-router.put('/:id/desativar', auth.acessVerification, function(req, res) {
+router.put('/:id/desativar', auth.verificaAcesso, function(req, res) {
   User.updateUserStatus(req.params.id, false)
     .then(dados => {
       res.jsonp(dados)
@@ -97,7 +107,7 @@ router.put('/:id/desativar', auth.acessVerification, function(req, res) {
     .catch(e => res.status(505).jsonp({error: e}))
 })
 
-router.put('/:id/ativar', auth.acessVerification, function(req, res) {
+router.put('/:id/ativar', auth.verificaAcesso, function(req, res) {
   User.updateUserStatus(req.params.id, true)
     .then(dados => {
       res.jsonp(dados)
@@ -105,7 +115,7 @@ router.put('/:id/ativar', auth.acessVerification, function(req, res) {
     .catch(e => res.status(504).jsonp({error: e}))
 })
 
-router.put('/:id/password', auth.acessVerification, function(req, res) {
+router.put('/:id/password', auth.verificaAcesso, function(req, res) {
   User.updateUserPassword(req.params.id, req.body)
     .then(dados => {
       res.jsonp(dados)
@@ -113,7 +123,7 @@ router.put('/:id/password', auth.acessVerification, function(req, res) {
     .catch(e => res.status(503).jsonp({error: e}))
 })
 
-router.delete('/:id', auth.acessVerification, function(req, res) {
+router.delete('/:id', auth.verificaAcesso, function(req, res) {
   User.deleteUser(req.params.id)
     .then(dados => {
       res.jsonp(dados)
@@ -122,3 +132,4 @@ router.delete('/:id', auth.acessVerification, function(req, res) {
 })
 
 module.exports = router;
+

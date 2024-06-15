@@ -8,8 +8,8 @@ var userSchema = new  mongoose.Schema({
     email: String,
     filiation: String,
     level: String,
-    creationDate: String,
-    lastAcess: String,
+    dateCreated: String,
+    dateLastAccess: String,
     active: Boolean
 })
 

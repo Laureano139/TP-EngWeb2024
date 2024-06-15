@@ -19,7 +19,7 @@ function verificaToken(req, res, next){
       myToken = false;
 
   if(myToken){
-      jwt.verify(myToken, "EngWeb2023RuasDeBraga", function(e, payload){
+      jwt.verify(myToken, "EngWeb2024RuasDeBraga", function(e, payload){
       if(e){
           res.status(401).jsonp({error: e})
       }
@@ -31,10 +31,6 @@ function verificaToken(req, res, next){
       res.status(401).jsonp({error: "Token inexistente!!"})
     }
 }
-
-
-
-
 
 function ensureDirExists(dir) {
   if (!fs.existsSync(dir)) {
@@ -65,31 +61,6 @@ var upload = multer({ storage: storage });
 
 /* GET pagina com todas as ruas. */
 router.get('/', function(req, res, next) {
-  levelUser= "Utilizador"
-  tokenBool = false
-  if(req.cookies && req.cookies.token){
-    token = req.cookies.token
-    tokenBool = true
-
-    try {
-      const tk = jwt.verify(token, 'EngWeb2023RuasDeBraga');
-      levelUser = tk.level;
-    } catch (e) {
-      tokenBool=false
-    }
-  }
-
-  let q = ""
-    
-  if (req.query && "field" in req.query && "text" in req.query && req.query.text.trim().length > 0)
-  {
-    if (req.query.field == "nome")
-      q = `?nome_like=.*(?i)${req.query.text}.*`
-    else
-      q = `/${req.query.field}/${req.query.text}`
-  }
-
-
   var date = new Date().toISOString().substring(0, 16);
   axios.get('http://localhost:1893/ruas/')
   .then(resp => {
@@ -140,9 +111,9 @@ router.get('/delete/:id', function(req, res) {
 
 
 
-
-
+//--------------------------------------------------------------//
 // Criar uma Nova Rua
+//--------------------------------------------------------------//
 router.get('/criar', function(req, res) {
   var date = new Date().toISOString().substring(0, 16);
   res.render('novaRua', { "Data": date });
@@ -263,9 +234,179 @@ router.post('/criar', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: '
     });
     
 });
+// --------------------------------------------------------------//
 
 
+// --------------------------------------------------------------//
+// Editar uma Rua
+// --------------------------------------------------------------//
 
+router.get('/editar/:id', function(req, res) {
+  var d = new Date().toISOString().substring(0, 16);
+  axios.get('http://localhost:1893/ruas/' + req.params.id)
+    .then(response => {
+      const rua = response.data;
+      console.log('id:', response.data._id)
+      if (!rua) {
+        return res.status(404).json({ message: "Rua não encontrada" });
+      }
+      res.status(200).render('editarRua', {"rua": rua, "data": d});
+    })
+    .catch(error => {
+      console.error(error);
+      res.status(500).render('error', { "error": error });
+    });
+});
+
+router.post('/editar/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: 'atual', maxCount: 10 }]), function(req, res) {
+  
+  axios.get(`http://localhost:1893/ruas/${req.params.id}`)
+    .then(response => {
+      const data = response.data;
+      if (!data) {
+        return res.status(404).json({ message: "Rua não encontrada" });
+      }
+
+      // Coletar todos os caminhos das imagens antigas
+      let oldImagePaths = [];
+      data.figuras.forEach(figura => {
+        oldImagePaths.push(figura.imagem.path);
+      });
+    });
+
+  var updatedRua = {
+    _id: req.params.id,
+    numero: req.body.numero,
+    nome: req.body.nome,
+    pos: {
+      latitude: req.body.latitude,
+      longitude: req.body.longitude
+    },
+    figuras: [],
+    paragrafo: {
+      refs: {
+        entidades: [],
+        lugares: [],
+        datas: []
+      },
+      texto: req.body.texto
+    },
+    casas: []
+  };
+
+  // Processar entidades
+  if (req.body.entidades && req.body.entidades.nome && req.body.entidades.tipo) {
+    for (let i = 0; i < req.body.entidades.nome.length; i++) {
+      updatedRua.paragrafo.refs.entidades.push({
+        nome: req.body.entidades.nome[i],
+        tipo: req.body.entidades.tipo[i]
+      });
+    }
+  }
+
+  // Processar lugares
+  if (req.body.lugares && req.body.lugares.nome && req.body.lugares.norm) {
+    for (let i = 0; i < req.body.lugares.nome.length; i++) {
+      updatedRua.paragrafo.refs.lugares.push({
+        nome: req.body.lugares.nome[i],
+        norm: req.body.lugares.norm[i]
+      });
+    }
+  }
+
+  // Processar datas
+  if (req.body.datas) {
+    updatedRua.paragrafo.refs.datas = req.body.datas;
+  }
+
+  console.log('updatedRua_2:', updatedRua);
+
+  // Processar casas
+  if (req.body.casas && req.body.casas.numero) {
+    for (let i = 0; i < req.body.casas.numero.length; i++) {
+      updatedRua.casas.push({
+        numero: req.body.casas.numero[i],
+        enfiteutas: req.body.casas.enfiteutas[i] || '',
+        foro: req.body.casas.foro[i] || '',
+        desc: {
+          texto: req.body.casas.desc.texto[i] || '',
+          refs: {
+            entidades: JSON.parse(req.body.casas.desc.refs.entidades[i] || '[]'),
+            lugares: JSON.parse(req.body.casas.desc.refs.lugares[i] || '[]'),
+            datas: JSON.parse(req.body.casas.desc.refs.datas[i] || '[]')
+          }
+        }
+      });
+    }
+  }
+
+
+  // Processar figuras (imagens)
+  if (req.files) {
+    Object.keys(req.files).forEach(key => {
+      req.files[key].forEach((file, index) => {
+        let legendaKey = 'legenda_' + key;
+        let legenda = req.body[legendaKey] && req.body[legendaKey][index] ? req.body[legendaKey][index] : req.body[legendaKey];
+        if (key.startsWith('imagem')) {
+          updatedRua.figuras.push({
+            _id: file.filename.split('.')[0],
+            legenda: legenda,
+            imagem: {
+              path: path.join('../imagem', file.filename),
+              largura: null
+            }
+          });
+        } else if (key.startsWith('atual')) {
+          updatedRua.figuras.push({
+            _id: file.filename.split('.')[0],
+            legenda: legenda,
+            imagem: {
+              path: path.join('../atual', file.filename),
+              largura: null
+            }
+          });
+        }
+      });
+    });
+  }
+
+  console.log('updatedRua_3:', updatedRua);
+  
+  const newFileNames = updatedRua.figuras.map(figura => path.basename(figura.imagem.path));
+
+  console.log('newFileNames:', newFileNames)
+  console.log('oldImagePaths:', oldImagePaths)
+
+  // Deletar os arquivos de imagem antigos
+  oldImagePaths.forEach(imagePath => {
+    const oldFileName = path.basename(imagePath);
+    if (!newFileNames.includes(oldFileName)) {
+      imagePath = "./public" + imagePath.slice(2);
+      console.log(`Deletando arquivo ${imagePath}`);
+      fs.unlink(imagePath, err => {
+        if (err) {
+          console.error(`Erro ao deletar o arquivo ${imagePath}:`, err);
+        } else {
+          console.log(`Arquivo ${imagePath} deletado com sucesso`);
+        }
+      });
+    }
+  });
+
+  console.log('Updated Rua 4:', updatedRua);
+
+  // Atualizar a rua no banco de dados
+  axios.put(`http://localhost:1893/ruas/${req.params.id}`, updatedRua)
+    .then(() => {
+      res.status(200).redirect("/");
+    })
+    .catch(error => {
+      console.error(error);
+      res.status(500).render("error", { "error": error });
+    });
+});
+
+// --------------------------------------------------------------//
 
 
 router.get('/:id', function(req, res, next) {
@@ -304,42 +445,6 @@ router.get('/:id', function(req, res, next) {
     res.status(500).render('error', { "error": error });
   });
 });
-
-
-
-
-
-
-// AUTENTICAÇÃO
-
-router.get('/login', function(req, res){
-
-  tokenBool = false
-  if(req.cookies && req.cookies.token){
-    token = req.cookies.token
-    tokenBool = true
-
-    jwt.verify(token, 'EngWeb2023RuasDeBraga',(e, payload)=>{
-      if(e){
-        console.log('Token is expired');
-        tokenBool= false
-      }
-    })
-  }
-
-  res.render('login', {t: tokenBool})
-})
-
-router.post('/login', function(req, res){
-  axios.post('http://localhost:8003/users/login', req.body)
-    .then(response => {
-      res.cookie('token', response.data.token)
-      res.redirect('/')
-    })
-    .catch(e =>{
-      res.render('error', {error: e, message: "Credenciais inválidas"})
-    })
-})
 
 
 module.exports = router;

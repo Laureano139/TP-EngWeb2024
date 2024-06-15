@@ -56,7 +56,7 @@ router.post('/register', function(req, res) {
                     passport.authenticate("local")(req,res,function(){
                       jwt.sign({ username: req.user.username, level: req.user.level,
                         sub: 'Ruas de Braga ENGWEB2023'}, 
-                        "EngWeb2023RuasDeBraga",
+                        "EngWeb2024RuasDeBraga",
                         {expiresIn: 3600},
                         function(e, token) {
                           if(e) res.status(500).jsonp({error: "Erro na geração do token: " + e}) 
@@ -75,7 +75,7 @@ router.post('/login', passport.authenticate('local'), function(req, res){
 
       jwt.sign({ username: req.user.username, level: response.level,
         sub: 'Ruas de Braga ENGWEB2023'}, 
-        "EngWeb2023RuasDeBraga",
+        "EngWeb2024RuasDeBraga",
         {expiresIn: 3600},
         function(e, token) {
           if(e) res.status(500).jsonp({error: "Erro na geração do token: " + e}) 

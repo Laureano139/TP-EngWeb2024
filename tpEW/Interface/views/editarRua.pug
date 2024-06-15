@@ -1,0 +1,197 @@
+extends layout
+
+block content
+  .w3-card-4
+    header.w3-container.w3-grey
+      h1 Editar Rua #{rua.nome}
+
+    .w3-container.w3-center
+      form(method="post" action=`/editar/${rua._id}` enctype="multipart/form-data")
+        input(type="hidden" name="_method" value="PUT")
+        
+        .w3-container
+          label(for="numero") Número:
+          input.w3-input(type="text" name="numero" value=rua.numero required)
+
+        .w3-container
+          label(for="nome") Nome:
+          input.w3-input(type="text" name="nome" value=rua.nome required)
+        
+        .w3-container
+          label(for="latitude") Latitude:
+          input.w3-input(type="text" name="latitude" value=rua.pos.latitude required)
+
+        .w3-container
+          label(for="longitude") Longitude:
+          input.w3-input(type="text" name="longitude" value=rua.pos.longitude required)
+        
+        .w3-container.w3-center.w3-margin-top
+          hr
+
+        .w3-container.w3-center
+          h3
+            b Vistas atuais
+          .w3-row-padding.w3-margin-top.w3-center
+            each figura, index in rua.figuras
+              if figura.imagem.path.startsWith('../atual')
+                .w3-third
+                  .w3-card
+                    img(src=`${figura.imagem.path.slice(2)}`, style="width:100%")
+                    .w3-container
+                      h5= figura.legenda
+                    input(type="hidden", name="figuras_atual_ids[#{index}]", value=figura._id)
+                    label(for="legenda_atual") Legenda:
+                    input.w3-input(type="text", name="legenda_atual[#{index}]", value=figura.legenda)
+
+        .w3-container.w3-center.w3-margin-top
+          hr
+
+        // Seção para Vistas antigas
+        .w3-container.w3-center
+          h3
+            b Vistas antigas
+          .w3-row-padding.w3-margin-top.w3-center
+            each figura, index in rua.figuras
+              if figura.imagem.path.startsWith('../imagem')
+                .w3-third
+                  .w3-card
+                    img(src=`${figura.imagem.path.slice(2)}`, style="width:100%")
+                    .w3-container
+                      h5= figura.legenda
+                    input(type="hidden", name="figuras_antigas_ids[#{index}]", value=figura._id)
+                    label(for="legenda_antiga") Legenda:
+                    input.w3-input(type="text", name="legenda_antiga[#{index}]", value=figura.legenda)
+
+        // Seção para upload de novas imagens
+        .w3-container.w3-center.w3-margin-top
+          hr
+          h3
+            b Upload de Novas Imagens
+          .w3-section
+            label(for="imagem") Imagem:
+            input.w3-input(type="file" name="imagem" multiple)
+            label(for="legenda_imagem") Legenda da Imagem:
+            input.w3-input(type="text" name="legenda_imagem[]")
+          .w3-section
+            label(for="atual") Atual:
+            input.w3-input(type="file" name="atual" multiple)
+            label(for="legenda_atual") Legenda Atual:
+            input.w3-input(type="text" name="legenda_atual[]")
+        
+        .w3-container.w3-center.w3-margin-top
+          hr
+
+        .w3-container.w3-center
+          h3
+            b Descrição
+          .descricao-box.w3-margin-top
+            textarea.w3-input(name="texto")= rua.paragrafo.texto
+        
+        .w3-container.w3-center.w3-margin-top
+          hr
+
+        
+        .w3-container
+          h3
+            b Entidades
+          .entidades-container
+            each entidade, index in rua.paragrafo.refs.entidades
+              .entidade
+                input.w3-input(type="text", name=`entidades[nome][${index}]` placeholder="Nome da Entidade" value=entidade.nome)
+                input.w3-input(type="text", name=`entidades[tipo][${index}]` placeholder="Tipo da Entidade" value=entidade.tipo)
+          button.w3-button.w3-green(type="button", onclick="addEntidade()") Adicionar Entidade
+
+        .w3-container.w3-center.w3-margin-top
+          hr
+
+        
+        .w3-container
+          h3
+            b Lugares
+          .lugares-container
+            each lugar, index in rua.paragrafo.refs.lugares
+              .lugar
+                input.w3-input(type="text", name=`lugares[nome][${index}]` placeholder="Nome do Lugar" value=lugar.nome)
+                input.w3-input(type="text", name=`lugares[norm][${index}]` placeholder="Norm (opcional)" value=lugar.norm)
+          button.w3-button.w3-green(type="button", onclick="addLugar()") Adicionar Lugar
+
+        .w3-container.w3-center.w3-margin-top
+          hr
+
+        .w3-container
+          h3
+            b Datas
+          .datas-container
+            each data, index in rua.paragrafo.refs.datas
+              .data
+                input.w3-input(type="text", name=`datas[${index}]` placeholder="Data" value=data)
+          button.w3-button.w3-green(type="button", onclick="addData()") Adicionar Data
+
+        .w3-container.w3-center.w3-margin-top
+          hr
+
+        .w3-container.w3-center
+          h3
+            b Casas
+          table.w3-table-all.w3-margin-top
+            thead
+              tr.w3-grey
+                th Casa
+                th Dono
+                th Custo
+                th Sobre
+            tbody
+              each casa, index in rua.casas
+                tr
+                  td
+                    input.w3-input(type="text", name="casas[numero][]", value=casa.numero)
+                  td
+                    input.w3-input(type="text", name="casas[enfiteutas][]", value=casa.enfiteutas)
+                  td
+                    input.w3-input(type="text", name="casas[foro][]", value=casa.foro)
+                  td
+                    textarea.w3-input(name="casas[desc][texto][]", value=casa.desc.texto)
+                    input.w3-input(type="text", name="casas[desc][refs][entidades][]", value=JSON.stringify(casa.desc.refs.entidades))
+                    input.w3-input(type="text", name="casas[desc][refs][lugares][]", value=JSON.stringify(casa.desc.refs.lugares))
+                    input.w3-input(type="text", name="casas[desc][refs][datas][]", value=JSON.stringify(casa.desc.refs.datas))
+
+        .w3-container.w3-center.w3-margin-top
+          button.w3-button.w3-green(type="submit") Salvar
+        br
+
+    footer.w3-container.w3-grey.w3-margin-top
+      h5 Generated by Group 38 in #{data}
+
+  script.
+    function addEntidade() {
+      const container = document.querySelector('.entidades-container');
+      const index = container.children.length / 2;
+      const div = document.createElement('div');
+      div.className = 'entidade';
+      div.innerHTML = `
+        <input class="w3-input" type="text" name="entidades[nome][${index}]" placeholder="Nome da Entidade">
+        <input class="w3-input" type="text" name="entidades[tipo][${index}]" placeholder="Tipo da Entidade">
+      `;
+      container.appendChild(div);
+    }
+
+    function addLugar() {
+      const container = document.querySelector('.lugares-container');
+      const index = container.children.length / 2;
+      const div = document.createElement('div');
+      div.className = 'lugar';
+      div.innerHTML = `
+        <input class="w3-input" type="text" name="lugares[nome][${index}]" placeholder="Nome do Lugar">
+        <input class="w3-input" type="text" name="lugares[norm][${index}]" placeholder="Norm (opcional)">
+      `;
+      container.appendChild(div);
+    }
+
+    function addData() {
+      const container = document.querySelector('.datas-container');
+      const index = container.children.length;
+      const div = document.createElement('div');
+      div.className = 'data';
+      div.innerHTML = `<input class="w3-input" type="text" name="datas[${index}]" placeholder="Data">`;
+      container.appendChild(div);
+    }

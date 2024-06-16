@@ -72,16 +72,21 @@ block content
           hr
           h3
             b Upload de Novas Imagens
-          .w3-section
+          .w3-section.imagem-section
             label(for="imagem") Imagem:
             input.w3-input(type="file", name="imagem" multiple)
             label(for="legenda_imagem") Legenda da Imagem:
             input.w3-input(type="text", name="legenda_imagem[]")
-          .w3-section
+          
+          button.w3-button.w3-green(type="button", onclick="addNovaImagem('imagem')") Adicionar Nova Imagem
+
+          .w3-section.atual-section
             label(for="atual") Atual:
-            input.w3-input(type="file" name="atual" multiple)
+            input.w3-input(type="file", name="atual" multiple)
             label(for="legenda_atual") Legenda Atual:
-            input.w3-input(type="text" name="legenda_atual[]")
+            input.w3-input(type="text", name="legenda_atual[]")
+          
+          button.w3-button.w3-green(type="button", onclick="addNovaImagem('atual')") Adicionar Nova Vista Atual
         
         .w3-container.w3-center.w3-margin-top
           hr
@@ -135,6 +140,7 @@ block content
         .w3-container.w3-center.w3-margin-top
           hr
 
+        // Seção para Casas
         .w3-container.w3-center
           h3
             b Casas
@@ -145,20 +151,30 @@ block content
                 th Dono
                 th Custo
                 th Sobre
-            tbody
+            tbody.casas-container
               each casa, index in rua.casas
                 tr
                   td
-                    input.w3-input(type="text", name="casas[numero][]", value=casa.numero)
+                    input.w3-input(type="text", name="casas[numero][]" value=casa.numero)
                   td
-                    input.w3-input(type="text", name="casas[enfiteutas][]", value=casa.enfiteutas)
+                    input.w3-input(type="text", name="casas[enfiteutas][]" value=casa.enfiteutas)
                   td
-                    input.w3-input(type="text", name="casas[foro][]", value=casa.foro)
+                    input.w3-input(type="text", name="casas[foro][]" value=casa.foro)
                   td
-                    textarea.w3-input(name="casas[desc][texto][]", value=casa.desc.texto)
-                    input.w3-input(type="text", name="casas[desc][refs][entidades][]", value=JSON.stringify(casa.desc.refs.entidades))
-                    input.w3-input(type="text", name="casas[desc][refs][lugares][]", value=JSON.stringify(casa.desc.refs.lugares))
-                    input.w3-input(type="text", name="casas[desc][refs][datas][]", value=JSON.stringify(casa.desc.refs.datas))
+                    textarea.w3-input(name="casas[desc][texto][]" placeholder="Descrição")= casa.desc.texto
+                    .refs-entidades-container
+                      each entidade, idx in casa.desc.refs.entidades
+                        input.w3-input(type="text", name=`casas[desc][refs][entidades][${index}][]` value=entidade.nome placeholder="Entidade Nome")
+                        input.w3-input(type="text", name=`casas[desc][refs][entidades-tipo][${index}][]` value=entidade.tipo placeholder="Entidade Tipo")
+                    .refs-lugares-container
+                      each lugar, idx in casa.desc.refs.lugares
+                        input.w3-input(type="text", name=`casas[desc][refs][lugares][${index}][]` value=lugar.nome placeholder="Lugar Nome")
+                        input.w3-input(type="text", name=`casas[desc][refs][lugares-norm][${index}][]` value=lugar.norm placeholder="Lugar Norm")
+                    .refs-datas-container
+                      each data, idx in casa.desc.refs.datas
+                        input.w3-input(type="text", name=`casas[desc][refs][datas][${index}][]` value=data placeholder="Data")
+
+            button.w3-button.w3-green(type="button", onclick="addNovaCasa()") Adicionar Nova Casa
 
         .w3-container.w3-center.w3-margin-top
           button.w3-button.w3-green(type="submit") Salvar
@@ -201,11 +217,60 @@ block content
       container.appendChild(div);
     }
 
+        
     function removeFigura(index, tipo) {
       const input = document.createElement('input');
       input.type = 'hidden';
       input.name = `remover_${tipo}_ids[]`;
       input.value = document.querySelector(`input[name="figuras_${tipo}_ids[${index}]"]`).value;
       document.querySelector('form').appendChild(input);
-      document.querySelector(`input[name="figuras_${tipo}_ids[${index}]"]`).parentElement.parentElement.remove();
+      document.querySelector(`input[name="figuras_${tipo}_ids[${index}]"]`).closest('.w3-third').remove();
+    }
+
+    function addNovaImagem(tipo) {
+      const section = tipo === 'imagem' ? document.querySelector('.imagem-section') : document.querySelector('.atual-section');
+      const inputFile = document.createElement('input');
+      inputFile.type = 'file';
+      inputFile.name = tipo;
+      inputFile.className = 'w3-input';
+      section.appendChild(inputFile);
+
+      const inputLegenda = document.createElement('input');
+      inputLegenda.type = 'text';
+      inputLegenda.name = `legenda_${tipo}[]`;
+      inputLegenda.className = 'w3-input';
+      inputLegenda.placeholder = `Legenda ${tipo === 'imagem' ? 'da Imagem' : 'Atual'}`;
+      section.appendChild(inputLegenda);
+    }
+
+    function addNovaCasa() {
+      const container = document.querySelector('.casas-container');
+      const index = container.children.length;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>
+          <input class="w3-input" type="text" name="casas[numero][]" placeholder="Número da Casa">
+        </td>
+        <td>
+          <input class="w3-input" type="text" name="casas[enfiteutas][]" placeholder="Enfiteutas">
+        </td>
+        <td>
+          <input class="w3-input" type="text" name="casas[foro][]" placeholder="Foro">
+        </td>
+        <td>
+          <textarea class="w3-input" name="casas[desc][texto][]" placeholder="Descrição"></textarea>
+          <div class="refs-entidades-container">
+            <input class="w3-input" type="text" name="casas[desc][refs][entidades][${index}][]" placeholder="Entidade Nome">
+            <input class="w3-input" type="text" name="casas[desc][refs][entidades-tipo][${index}][]" placeholder="Entidade Tipo">
+          </div>
+          <div class="refs-lugares-container">
+            <input class="w3-input" type="text" name="casas[desc][refs][lugares][${index}][]" placeholder="Lugar Nome">
+            <input class="w3-input" type="text" name="casas[desc][refs][lugares-norm][${index}][]" placeholder="Lugar Norm">
+          </div>
+          <div class="refs-datas-container">
+            <input class="w3-input" type="text" name="casas[desc][refs][datas][${index}][]" placeholder="Data">
+          </div>
+        </td>
+      `;
+      container.appendChild(tr);
     }

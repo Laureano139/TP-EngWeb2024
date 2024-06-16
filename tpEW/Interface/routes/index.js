@@ -262,164 +262,183 @@ router.post('/editar/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { na
   
   axios.get(`http://localhost:1893/ruas/${req.params.id}`)
     .then(response => {
-      var rua = response.data;
-      let oldImagePaths = [];
-      rua.figuras.forEach(figura => {
-        oldImagePaths.push(figura.imagem.path);
-      });
-    });
-  
-  var updatedRua = {
-    _id: req.params.id,
-    numero: req.body.numero,
-    nome: req.body.nome,
-    pos: {
-      latitude: req.body.latitude,
-      longitude: req.body.longitude
-    },
-    figuras: [],
-    paragrafo: {
-      refs: {
-        entidades: [],
-        lugares: [],
-        datas: []
-      },
-      texto: req.body.texto
-    },
-    casas: []
-  };
+        var rua = response.data;
+        var oldFiguras = rua.figuras;
+        
+        var updatedRua = {
+          _id: response.data._id,
+          numero: req.body.numero,
+          nome: req.body.nome,
+          pos: {
+            latitude: req.body.latitude,
+            longitude: req.body.longitude
+          },
+          figuras: [],
+          paragrafo: {
+            refs: {
+              entidades: [],
+              lugares: [],
+              datas: []
+            },
+            texto: req.body.texto
+          },
+          casas: [],
+          comentarios: []
+        };
 
-  // Inicialize uma lista para armazenar os paths
-  let paths_naoEliminados = [];
-  // Adicione paths das figuras atuais
-  if (req.body.figuras_atual_paths) {
-    paths_naoEliminados.push(...req.body.figuras_atual_paths);
-  }
+        // Inicialize uma lista para armazenar os paths
+        let paths_naoEliminados = [];
+        // Adicione paths das figuras atuais
+        if (req.body.figuras_atual_paths) {
+          paths_naoEliminados.push(...req.body.figuras_atual_paths);
+        }
 
-  // Adicione paths das figuras antigas
-  if (req.body.figuras_antigas_paths) {
-    paths_naoEliminados.push(...req.body.figuras_antigas_paths);
-  }
+        // Adicione paths das figuras antigas
+        if (req.body.figuras_antigas_paths) {
+          paths_naoEliminados.push(...req.body.figuras_antigas_paths);
+        }   
+        paths_naoEliminados.forEach(path => {
+          // Find the figure in oldFiguras that corresponds to the path
+          var fig = oldFiguras.find(figura => figura.imagem.path == path);
+          if (fig) {
+            updatedRua.figuras.push(fig);
+          }
+        }); 
+        console.log('paths_naoEliminados ola:', paths_naoEliminados);   
 
-  console.log('paths_naoEliminados ola:', paths_naoEliminados);
-
-  paths_naoEliminados.forEach(path => {
-    // adicionar as figuras da updateRua
-    updatedRua.figuras.push({
-      _id: path.split('/')[2].split('.')[0],
-      legenda: "ola",
-      imagem: {
-        path: path,
-        largura: null
-      }
-    });
-  });
-
-  console.log('updatedRua_1:', updatedRua);
-  // Processar entidades
-  if (req.body.entidades && req.body.entidades.nome && req.body.entidades.tipo) {
-    for (let i = 0; i < req.body.entidades.nome.length; i++) {
-      updatedRua.paragrafo.refs.entidades.push({
-        nome: req.body.entidades.nome[i],
-        tipo: req.body.entidades.tipo[i]
-      });
-    }
-  }
-
-  // Processar lugares
-  if (req.body.lugares && req.body.lugares.nome && req.body.lugares.norm) {
-    for (let i = 0; i < req.body.lugares.nome.length; i++) {
-      updatedRua.paragrafo.refs.lugares.push({
-        nome: req.body.lugares.nome[i],
-        norm: req.body.lugares.norm[i]
-      });
-    }
-  }
-
-  // Processar datas
-  if (req.body.datas) {
-    updatedRua.paragrafo.refs.datas = req.body.datas;
-  }
-
-  console.log('updatedRua_2:', updatedRua);
-
-  // Processar casas
-  if (req.body.casas && req.body.casas.numero) {
-    for (let i = 0; i < req.body.casas.numero.length; i++) {
-      updatedRua.casas.push({
-        numero: req.body.casas.numero[i],
-        enfiteutas: req.body.casas.enfiteutas[i] || '',
-        foro: req.body.casas.foro[i] || '',
-        desc: {
-          texto: req.body.casas.desc.texto[i] || '',
-          refs: {
-            entidades: JSON.parse(req.body.casas.desc.refs.entidades[i] || '[]'),
-            lugares: JSON.parse(req.body.casas.desc.refs.lugares[i] || '[]'),
-            datas: JSON.parse(req.body.casas.desc.refs.datas[i] || '[]')
+        var paths_eliminados = oldFiguras.map(figura => figura.imagem.path).filter(path => !paths_naoEliminados.includes(path));    
+        console.log('updatedRua_1:', updatedRua);
+        // Processar entidades
+        if (req.body.entidades && req.body.entidades.nome && req.body.entidades.tipo) {
+          for (let i = 0; i < req.body.entidades.nome.length; i++) {
+            updatedRua.paragrafo.refs.entidades.push({
+              nome: req.body.entidades.nome[i],
+              tipo: req.body.entidades.tipo[i]
+            });
           }
         }
-      });
-    }
-  }
+
+        // Processar lugares
+        if (req.body.lugares && req.body.lugares.nome && req.body.lugares.norm) {
+          for (let i = 0; i < req.body.lugares.nome.length; i++) {
+            updatedRua.paragrafo.refs.lugares.push({
+              nome: req.body.lugares.nome[i],
+              norm: req.body.lugares.norm[i]
+            });
+          }
+        }
+
+        // Processar datas
+        if (req.body.datas) {
+          updatedRua.paragrafo.refs.datas = req.body.datas;
+        }
+
+        console.log('updatedRua_2:', updatedRua);
+
+      // Processar casas
+      if (req.body.casas && req.body.casas.numero) {
+          for (let i = 0; i < req.body.casas.numero.length; i++) {
+            let entidades = [];
+            let lugares = [];
+            let datas = [];
+          
+            if (req.body.casas.desc.refs.entidades[i]) {
+              for (let j = 0; j < req.body.casas.desc.refs.entidades[i].length; j++) {
+                entidades.push({
+                  nome: req.body.casas.desc.refs.entidades[i][j] || '',
+                  tipo: req.body.casas.desc.refs['entidades-tipo'][i][j] || ''
+                });
+              }
+            }
+          
+            if (req.body.casas.desc.refs.lugares[i]) {
+              for (let j = 0; j < req.body.casas.desc.refs.lugares[i].length; j++) {
+                lugares.push({
+                  nome: req.body.casas.desc.refs.lugares[i][j] || '',
+                  norm: req.body.casas.desc.refs['lugares-norm'][i][j] || ''
+                });
+              }
+            }
+          
+            if (req.body.casas.desc.refs.datas[i]) {
+              datas = req.body.casas.desc.refs.datas[i];
+            }
+          
+            updatedRua.casas.push({
+              numero: req.body.casas.numero[i],
+              enfiteutas: req.body.casas.enfiteutas[i] || '',
+              foro: req.body.casas.foro[i] || '',
+              desc: {
+                texto: req.body.casas.desc.texto[i] || '',
+                refs: {
+                  entidades: entidades,
+                  lugares: lugares,
+                  datas: datas
+                }
+              }
+            });
+          }
+        }
 
 
-  // Processar figuras (imagens)
-  if (req.files) {
-    console.log('req.files:', req.files);
-    Object.keys(req.files).forEach(key => {
-      req.files[key].forEach((file, index) => {
-        let legendaKey = 'legenda_' + key;
-        let legenda = req.body[legendaKey] && req.body[legendaKey][index] ? req.body[legendaKey][index] : req.body[legendaKey];
-        if (key.startsWith('imagem')) {
-          updatedRua.figuras.push({
-            _id: file.filename.split('.')[0],
-            legenda: legenda,
-            imagem: {
-              path: path.join('../imagem', file.filename),
-              largura: null
-            }
-          });
-        } else if (key.startsWith('atual')) {
-          updatedRua.figuras.push({
-            _id: file.filename.split('.')[0],
-            legenda: legenda,
-            imagem: {
-              path: path.join('../atual', file.filename),
-              largura: null
-            }
+              // Processar figuras (imagens) adicionadas
+        if (req.files) {
+          console.log('req.files:', req.files);
+          Object.keys(req.files).forEach(key => {
+            req.files[key].forEach((file, index) => {
+              let legendaKey = 'legenda_' + key;
+              let legenda = req.body[legendaKey] && req.body[legendaKey][index] ? req.body[legendaKey][index] : req.body[legendaKey];
+              if (key.startsWith('imagem')) {
+                console.log('legendas:', legenda);
+                updatedRua.figuras.push({
+                  _id: file.filename.split('.')[0],
+                  legenda: legenda,
+                  imagem: {
+                    path: path.join('../imagem', file.filename),
+                    largura: null
+                  }
+                });
+              } else if (key.startsWith('atual')) {
+                updatedRua.figuras.push({
+                  _id: file.filename.split('.')[0],
+                  legenda: legenda,
+                  imagem: {
+                    path: path.join('../atual', file.filename),
+                    largura: null
+                  }
+                });
+              }
+            });
           });
         }
-      });
-    });
-  }
 
-  console.log('updatedRua_3:', updatedRua);
+        console.log('updatedRua_3:', updatedRua);
+        console.log('paths_eliminados:', paths_eliminados);
+        // Remover imagens apagadas 
+        paths_eliminados.forEach(path => {
+          path = "/public" + path
+          fs.unlink(path, err => {
+            if (err) {
+              console.error(`Error deleting file ${path}:`, err);
+            } else {
+              console.log(`File ${path} successfully deleted`);
+            }
+          });
+        });
+
+        console.log('Updated Rua 4:', updatedRua);
+
+        // Atualizar a rua no banco de dados
+        axios.put(`http://localhost:1893/ruas/${req.params.id}`, updatedRua)
+            .then(() => {
+                res.status(200).redirect("/");
+            })
+            .catch(error => {
+                console.error(error);
+                res.status(500).render("error", { "error": error });
+            });
+    });
   
-  /*
-  // Remover imagens apagadas
-  paths_eliminados.forEach(path => {
-    path = "/public" + path
-    fs.unlink(path, err => {
-      if (err) {
-        console.error(`Error deleting file ${path}:`, err);
-      } else {
-        console.log(`File ${path} successfully deleted`);
-      }
-    });
-  });
-  */
-
-  console.log('Updated Rua 4:', updatedRua);
-
-  // Atualizar a rua no banco de dados
-  axios.put(`http://localhost:1893/ruas/${req.params.id}`, updatedRua)
-    .then(() => {
-      res.status(200).redirect("/");
-    })
-    .catch(error => {
-      console.error(error);
-      res.status(500).render("error", { "error": error });
-    });
 });
 
 // --------------------------------------------------------------//

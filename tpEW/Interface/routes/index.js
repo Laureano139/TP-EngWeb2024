@@ -262,18 +262,13 @@ router.post('/editar/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { na
   
   axios.get(`http://localhost:1893/ruas/${req.params.id}`)
     .then(response => {
-      const data = response.data;
-      if (!data) {
-        return res.status(404).json({ message: "Rua não encontrada" });
-      }
-
-      // Coletar todos os caminhos das imagens antigas
+      var rua = response.data;
       let oldImagePaths = [];
-      data.figuras.forEach(figura => {
+      rua.figuras.forEach(figura => {
         oldImagePaths.push(figura.imagem.path);
       });
     });
-
+  
   var updatedRua = {
     _id: req.params.id,
     numero: req.body.numero,
@@ -294,6 +289,33 @@ router.post('/editar/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { na
     casas: []
   };
 
+  // Inicialize uma lista para armazenar os paths
+  let paths_naoEliminados = [];
+  // Adicione paths das figuras atuais
+  if (req.body.figuras_atual_paths) {
+    paths_naoEliminados.push(...req.body.figuras_atual_paths);
+  }
+
+  // Adicione paths das figuras antigas
+  if (req.body.figuras_antigas_paths) {
+    paths_naoEliminados.push(...req.body.figuras_antigas_paths);
+  }
+
+  console.log('paths_naoEliminados ola:', paths_naoEliminados);
+
+  paths_naoEliminados.forEach(path => {
+    // adicionar as figuras da updateRua
+    updatedRua.figuras.push({
+      _id: path.split('/')[2].split('.')[0],
+      legenda: "ola",
+      imagem: {
+        path: path,
+        largura: null
+      }
+    });
+  });
+
+  console.log('updatedRua_1:', updatedRua);
   // Processar entidades
   if (req.body.entidades && req.body.entidades.nome && req.body.entidades.tipo) {
     for (let i = 0; i < req.body.entidades.nome.length; i++) {
@@ -343,6 +365,7 @@ router.post('/editar/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { na
 
   // Processar figuras (imagens)
   if (req.files) {
+    console.log('req.files:', req.files);
     Object.keys(req.files).forEach(key => {
       req.files[key].forEach((file, index) => {
         let legendaKey = 'legenda_' + key;
@@ -372,26 +395,19 @@ router.post('/editar/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { na
 
   console.log('updatedRua_3:', updatedRua);
   
-  const newFileNames = updatedRua.figuras.map(figura => path.basename(figura.imagem.path));
-
-  console.log('newFileNames:', newFileNames)
-  console.log('oldImagePaths:', oldImagePaths)
-
-  // Deletar os arquivos de imagem antigos
-  oldImagePaths.forEach(imagePath => {
-    const oldFileName = path.basename(imagePath);
-    if (!newFileNames.includes(oldFileName)) {
-      imagePath = "./public" + imagePath.slice(2);
-      console.log(`Deletando arquivo ${imagePath}`);
-      fs.unlink(imagePath, err => {
-        if (err) {
-          console.error(`Erro ao deletar o arquivo ${imagePath}:`, err);
-        } else {
-          console.log(`Arquivo ${imagePath} deletado com sucesso`);
-        }
-      });
-    }
+  /*
+  // Remover imagens apagadas
+  paths_eliminados.forEach(path => {
+    path = "/public" + path
+    fs.unlink(path, err => {
+      if (err) {
+        console.error(`Error deleting file ${path}:`, err);
+      } else {
+        console.log(`File ${path} successfully deleted`);
+      }
+    });
   });
+  */
 
   console.log('Updated Rua 4:', updatedRua);
 
@@ -445,6 +461,5 @@ router.get('/:id', function(req, res, next) {
     res.status(500).render('error', { "error": error });
   });
 });
-
 
 module.exports = router;

@@ -103,6 +103,7 @@ router.delete("/unpost/:id", function(req,res,next) {
 
 
 router.put('/:id', function(req, res) {
+  console.log(req.body)
   Rua.update(req.params.id, req.body)
     .then(data => res.jsonp(data))
     .catch(erro => res.jsonp(erro))

@@ -28,6 +28,7 @@ block content
         .w3-container.w3-center.w3-margin-top
           hr
 
+        // Seção para Vistas atuais
         .w3-container.w3-center
           h3
             b Vistas atuais
@@ -39,9 +40,11 @@ block content
                     img(src=`${figura.imagem.path.slice(2)}`, style="width:100%")
                     .w3-container
                       h5= figura.legenda
-                    input(type="hidden", name="figuras_atual_ids[#{index}]", value=figura._id)
+                    input(type="hidden", name="figuras_atual_ids[]" value=figura._id)
+                    input(type="hidden", name="figuras_atual_paths[]" value=figura.imagem.path)
                     label(for="legenda_atual") Legenda:
-                    input.w3-input(type="text", name="legenda_atual[#{index}]", value=figura.legenda)
+                    input.w3-input(type="text", name="legenda_atual[]" value=figura.legenda)
+                    button.w3-button.w3-red(type="button", onclick=`removeFigura(${index}, 'atual')`) Remover
 
         .w3-container.w3-center.w3-margin-top
           hr
@@ -58,9 +61,11 @@ block content
                     img(src=`${figura.imagem.path.slice(2)}`, style="width:100%")
                     .w3-container
                       h5= figura.legenda
-                    input(type="hidden", name="figuras_antigas_ids[#{index}]", value=figura._id)
+                    input(type="hidden", name="figuras_antigas_ids[]" value=figura._id)
+                    input(type="hidden", name="figuras_antigas_paths[]" value=figura.imagem.path)
                     label(for="legenda_antiga") Legenda:
-                    input.w3-input(type="text", name="legenda_antiga[#{index}]", value=figura.legenda)
+                    input.w3-input(type="text", name="legenda_antiga[]" value=figura.legenda)
+                    button.w3-button.w3-red(type="button", onclick=`removeFigura(${index}, 'antiga')`) Remover
 
         // Seção para upload de novas imagens
         .w3-container.w3-center.w3-margin-top
@@ -69,9 +74,9 @@ block content
             b Upload de Novas Imagens
           .w3-section
             label(for="imagem") Imagem:
-            input.w3-input(type="file" name="imagem" multiple)
+            input.w3-input(type="file", name="imagem" multiple)
             label(for="legenda_imagem") Legenda da Imagem:
-            input.w3-input(type="text" name="legenda_imagem[]")
+            input.w3-input(type="text", name="legenda_imagem[]")
           .w3-section
             label(for="atual") Atual:
             input.w3-input(type="file" name="atual" multiple)
@@ -194,4 +199,13 @@ block content
       div.className = 'data';
       div.innerHTML = `<input class="w3-input" type="text" name="datas[${index}]" placeholder="Data">`;
       container.appendChild(div);
+    }
+
+    function removeFigura(index, tipo) {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = `remover_${tipo}_ids[]`;
+      input.value = document.querySelector(`input[name="figuras_${tipo}_ids[${index}]"]`).value;
+      document.querySelector('form').appendChild(input);
+      document.querySelector(`input[name="figuras_${tipo}_ids[${index}]"]`).parentElement.parentElement.remove();
     }

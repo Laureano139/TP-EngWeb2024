@@ -79,6 +79,8 @@ block content
           label.w3-label(_for="legenda_imagem[0]") Legenda da Imagem
           input.w3-input(type="text", name="legenda_imagem[0]")
 
+        button.w3-button.w3-green(type="button", onclick="addNovaImagem('imagem')") Adicionar Nova Imagem
+
         .w3-section
           label.w3-label(_for="atual") Atual
           input.w3-input(type="file", name="atual")
@@ -86,6 +88,8 @@ block content
         .w3-section
           label.w3-label(_for="legenda_atual[0]") Legenda Atual
           input.w3-input(type="text", name="legenda_atual[0]")
+
+        button.w3-button.w3-green(type="button", onclick="addNovaImagem('atual')") Adicionar Nova Vista Atual
 
         .w3-section
           button.w3-button.w3-blue(type="submit") Adicionar Rua
@@ -113,6 +117,22 @@ block content
       div.className = 'data';
       div.innerHTML = '<input class="w3-input" type="text" name="datas[]" placeholder="Data">';
       container.appendChild(div);
+    }
+
+    function addNovaImagem(tipo) {
+      const section = tipo === 'imagem' ? document.querySelector('.imagem-section') : document.querySelector('.atual-section');
+      const inputFile = document.createElement('input');
+      inputFile.type = 'file';
+      inputFile.name = tipo;
+      inputFile.className = 'w3-input';
+      section.appendChild(inputFile);
+
+      const inputLegenda = document.createElement('input');
+      inputLegenda.type = 'text';
+      inputLegenda.name = `legenda_${tipo}[]`;
+      inputLegenda.className = 'w3-input';
+      inputLegenda.placeholder = `Legenda ${tipo === 'imagem' ? 'da Imagem' : 'Atual'}`;
+      section.appendChild(inputLegenda);
     }
 
     function addCasa() {

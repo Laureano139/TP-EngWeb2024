@@ -119,7 +119,6 @@ router.get('/criar', function(req, res) {
   res.render('novaRua', { "Data": date });
 });
 
-
 router.post('/criar', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: 'atual', maxCount: 10 }]), function(req, res) {  
   var rua = {
     _id: req.body._id,
@@ -195,12 +194,19 @@ router.post('/criar', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: '
       req.files[key].forEach((file, index) => {
         let legendaKey = 'legenda_' + key;
         let legenda = req.body[legendaKey] && req.body[legendaKey][index] ? req.body[legendaKey][index] : req.body[legendaKey];
+        if (Array.isArray(legenda)) {
+          legenda = legenda[index] || '';
+        } else {
+          legenda = legenda || '';
+        }
+  
         if (key.startsWith('imagem')) {
+          file.filename = file.filename.replace(/\\/g, "/");
           rua.figuras.push({
             _id: file.filename.split('.')[0],
             legenda: legenda, // Use a legenda correta para cada arquivo
             imagem: {
-              path: path.join('../imagem', file.filename),
+              path: path.posix.join('../imagem', file.filename),
               largura: null
             }
           });
@@ -209,7 +215,7 @@ router.post('/criar', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: '
             _id: file.filename.split('.')[0],
             legenda: legenda, // Use a legenda correta para cada arquivo
             imagem: {
-              path: path.join('../atual', file.filename),
+              path: path.posix.join('../atual', file.filename),
               largura: null
             }
           });
@@ -341,8 +347,12 @@ router.post('/editar/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { na
             let entidades = [];
             let lugares = [];
             let datas = [];
+
+            if(!req.body.casas.desc.refs){
+              continue
+            }
           
-            if (req.body.casas.desc.refs.entidades[i]) {
+            else if (req.body.casas.desc.refs.entidades[i]) {
               for (let j = 0; j < req.body.casas.desc.refs.entidades[i].length; j++) {
                 entidades.push({
                   nome: req.body.casas.desc.refs.entidades[i][j] || '',
@@ -379,22 +389,21 @@ router.post('/editar/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { na
             });
           }
         }
-
-
-              // Processar figuras (imagens) adicionadas
+        // Processar figuras (imagens) adicionadas
         if (req.files) {
           console.log('req.files:', req.files);
           Object.keys(req.files).forEach(key => {
             req.files[key].forEach((file, index) => {
               let legendaKey = 'legenda_' + key;
               let legenda = req.body[legendaKey] && req.body[legendaKey][index] ? req.body[legendaKey][index] : req.body[legendaKey];
+              file.filename = file.filename.replace(/\\/g, "/");
               if (key.startsWith('imagem')) {
                 console.log('legendas:', legenda);
                 updatedRua.figuras.push({
                   _id: file.filename.split('.')[0],
                   legenda: legenda,
                   imagem: {
-                    path: path.join('../imagem', file.filename),
+                    path: path.posix.join('../imagem', file.filename),
                     largura: null
                   }
                 });
@@ -403,7 +412,7 @@ router.post('/editar/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { na
                   _id: file.filename.split('.')[0],
                   legenda: legenda,
                   imagem: {
-                    path: path.join('../atual', file.filename),
+                    path: path.posix.join('../atual', file.filename),
                     largura: null
                   }
                 });
@@ -412,16 +421,24 @@ router.post('/editar/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { na
           });
         }
 
+        const projectRoot = path.resolve(__dirname, '..'); // Get the project root
+        const publicDir = path.join(projectRoot, 'public');
+              
         console.log('updatedRua_3:', updatedRua);
         console.log('paths_eliminados:', paths_eliminados);
+              
         // Remover imagens apagadas 
-        paths_eliminados.forEach(path => {
-          path = "/public" + path
-          fs.unlink(path, err => {
+        paths_eliminados.forEach(relativePath => {
+          // Remove leading "../" from relativePath
+          const sanitizedPath = relativePath.replace(/^\.\.\//, '');
+          const fullPath = path.join(publicDir, sanitizedPath);
+          console.log('fullPath:', fullPath);
+        
+          fs.unlink(fullPath, err => {
             if (err) {
-              console.error(`Error deleting file ${path}:`, err);
+              console.error(`Error deleting file ${fullPath}:`, err);
             } else {
-              console.log(`File ${path} successfully deleted`);
+              console.log(`File ${fullPath} successfully deleted`);
             }
           });
         });
@@ -454,7 +471,7 @@ router.get('/:id', function(req, res, next) {
       var entidades = rua.paragrafo.refs.entidades;
       var lugares = rua.paragrafo.refs.lugares;
       var datas = rua.paragrafo.refs.datas;
-    
+      
       // Replace each entity, place, and date in the text with its bold version
       entidades.forEach(entidade => {
         var regex = new RegExp(entidade.nome, 'g');

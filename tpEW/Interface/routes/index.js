@@ -186,28 +186,28 @@ router.post('/criar', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: '
       };
 
       // Processar entidades das casas
-      if (req.body.casas.desc.refs.entidades && req.body.casas.desc.refs.entidades.nome) {
-        for (let j = 0; j < req.body.casas.desc.refs.entidades.nome.length; j++) {
+      if (req.body.casas.desc.refs.entidades && req.body.casas.desc.refs.entidades[i] && req.body.casas.desc.refs.entidades[i].nome) {
+        for (let j = 0; j < req.body.casas.desc.refs.entidades[i].nome.length; j++) {
           casa.desc.refs.entidades.push({
-            nome: req.body.casas.desc.refs.entidades.nome[j],
-            tipo: req.body.casas.desc.refs.entidades.tipo[j]
+            nome: req.body.casas.desc.refs.entidades[i].nome[j],
+            tipo: req.body.casas.desc.refs.entidades[i].tipo[j]
           });
         }
       }
 
       // Processar lugares das casas
-      if (req.body.casas.desc.refs.lugares && req.body.casas.desc.refs.lugares.nome) {
-        for (let j = 0; j < req.body.casas.desc.refs.lugares.nome.length; j++) {
+      if (req.body.casas.desc.refs.lugares && req.body.casas.desc.refs.lugares[i] && req.body.casas.desc.refs.lugares[i].nome) {
+        for (let j = 0; j < req.body.casas.desc.refs.lugares[i].nome.length; j++) {
           casa.desc.refs.lugares.push({
-            nome: req.body.casas.desc.refs.lugares.nome[j],
-            norm: req.body.casas.desc.refs.lugares.norm[j]
+            nome: req.body.casas.desc.refs.lugares[i].nome[j],
+            norm: req.body.casas.desc.refs.lugares[i].norm[j]
           });
         }
       }
 
       // Processar datas das casas
-      if (req.body.casas.desc.refs.datas) {
-        casa.desc.refs.datas = req.body.casas.desc.refs.datas;
+      if (req.body.casas.desc.refs.datas && req.body.casas.desc.refs.datas[i]) {
+        casa.desc.refs.datas = req.body.casas.desc.refs.datas[i].map(dateArray => dateArray[0]);
       }
 
       rua.casas.push(casa);
@@ -264,6 +264,7 @@ router.post('/criar', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: '
       res.status(500).render('error', { error: error }); // Renderizar página de erro em caso de falha
     });
 });
+
 
 // --------------------------------------------------------------//
 

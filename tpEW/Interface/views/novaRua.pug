@@ -65,29 +65,41 @@ block content
               input.w3-input(type="text", name="casas[enfiteutas][]" placeholder="Enfiteutas")
               input.w3-input(type="text", name="casas[foro][]" placeholder="Foro")
               textarea.w3-input(name="casas[desc][texto][]" placeholder="Descrição")
-              input.w3-input(type="text", name="casas[desc][refs][entidades][]" placeholder="Referências de Entidades (JSON)")
-              input.w3-input(type="text", name="casas[desc][refs][lugares][]" placeholder="Referências de Lugares (JSON)")
-              input.w3-input(type="text", name="casas[desc][refs][datas][]" placeholder="Referências de Datas (JSON)")
+              .refs-entidades-container
+                label Entidades:
+                .entidade
+                  input.w3-input(type="text", name="casas[desc][refs][entidades][nome][]" placeholder="Nome da Entidade")
+                  input.w3-input(type="text", name="casas[desc][refs][entidades][tipo][]" placeholder="Tipo da Entidade")
+                button.w3-button.w3-green(type="button", onclick="addCasaEntidade(this)") Adicionar Entidade
+              .refs-lugares-container
+                label Lugares:
+                .lugar
+                  input.w3-input(type="text", name="casas[desc][refs][lugares][nome][]" placeholder="Nome do Lugar")
+                  input.w3-input(type="text", name="casas[desc][refs][lugares][norm][]" placeholder="Norm (opcional)")
+                button.w3-button.w3-green(type="button", onclick="addCasaLugar(this)") Adicionar Lugar
+              .refs-datas-container
+                label Datas:
+                .data
+                  input.w3-input(type="text", name="casas[desc][refs][datas][]" placeholder="Data")
+                button.w3-button.w3-green(type="button", onclick="addCasaData(this)") Adicionar Data
           button.w3-button.w3-green(type="button", onclick="addCasa()") Adicionar Casa
       
         // Seção para Imagens
-        .w3-section
-          label.w3-label(_for="imagem") Imagem
-          input.w3-input(type="file", name="imagem")
-
-        .w3-section
-          label.w3-label(_for="legenda_imagem[0]") Legenda da Imagem
-          input.w3-input(type="text", name="legenda_imagem[0]")
+        .w3-section.imagem-section
+          .imagem-item
+            label.w3-label(_for="imagem") Imagem
+            input.w3-input(type="file", name="imagem")
+            label.w3-label(_for="legenda_imagem[0]") Legenda da Imagem
+            input.w3-input(type="text", name="legenda_imagem[0]")
 
         button.w3-button.w3-green(type="button", onclick="addNovaImagem('imagem')") Adicionar Nova Imagem
 
-        .w3-section
-          label.w3-label(_for="atual") Atual
-          input.w3-input(type="file", name="atual")
-
-        .w3-section
-          label.w3-label(_for="legenda_atual[0]") Legenda Atual
-          input.w3-input(type="text", name="legenda_atual[0]")
+        .w3-section.atual-section
+          .imagem-item
+            label.w3-label(_for="atual") Atual
+            input.w3-input(type="file", name="atual")
+            label.w3-label(_for="legenda_atual[0]") Legenda Atual
+            input.w3-input(type="text", name="legenda_atual[0]")
 
         button.w3-button.w3-green(type="button", onclick="addNovaImagem('atual')") Adicionar Nova Vista Atual
 
@@ -121,25 +133,73 @@ block content
 
     function addNovaImagem(tipo) {
       const section = tipo === 'imagem' ? document.querySelector('.imagem-section') : document.querySelector('.atual-section');
-      const inputFile = document.createElement('input');
-      inputFile.type = 'file';
-      inputFile.name = tipo;
-      inputFile.className = 'w3-input';
-      section.appendChild(inputFile);
-
-      const inputLegenda = document.createElement('input');
-      inputLegenda.type = 'text';
-      inputLegenda.name = `legenda_${tipo}[]`;
-      inputLegenda.className = 'w3-input';
-      inputLegenda.placeholder = `Legenda ${tipo === 'imagem' ? 'da Imagem' : 'Atual'}`;
-      section.appendChild(inputLegenda);
+      const div = document.createElement('div');
+      div.className = 'imagem-item';
+      div.innerHTML = `
+        <label class="w3-label" for="${tipo}">${tipo.charAt(0).toUpperCase() + tipo.slice(1)}</label>
+        <input class="w3-input" type="file" name="${tipo}">
+        <label class="w3-label" for="legenda_${tipo}">Legenda ${tipo.charAt(0).toUpperCase() + tipo.slice(1)}</label>
+        <input class="w3-input" type="text" name="legenda_${tipo}[]">
+      `;
+      section.appendChild(div);
     }
 
     function addCasa() {
       var container = document.querySelector('.casas-container');
       var div = document.createElement('div');
       div.className = 'casa';
-      div.innerHTML = '<input class="w3-input" type="text" name="casas[numero][]" placeholder="Número da Casa"><input class="w3-input" type="text" name="casas[enfiteutas][]" placeholder="Enfiteutas"><input class="w3-input" type="text" name="casas[foro][]" placeholder="Foro"><textarea class="w3-input" name="casas[desc][texto][]" placeholder="Descrição"></textarea><input class="w3-input" type="text" name="casas[desc][refs][entidades][]" placeholder="Referências de Entidades (JSON)"><input class="w3-input" type="text" name="casas[desc][refs][lugares][]" placeholder="Referências de Lugares (JSON)"><input class="w3-input" type="text" name="casas[desc][refs][datas][]" placeholder="Referências de Datas (JSON)">';
+      div.innerHTML = `
+        <input class="w3-input" type="text" name="casas[numero][]" placeholder="Número da Casa">
+        <input class="w3-input" type="text" name="casas[enfiteutas][]" placeholder="Enfiteutas">
+        <input class="w3-input" type="text" name="casas[foro][]" placeholder="Foro">
+        <textarea class="w3-input" name="casas[desc][texto][]" placeholder="Descrição"></textarea>
+        <div class="refs-entidades-container">
+          <label>Entidades:</label>
+          <div class="entidade">
+            <input class="w3-input" type="text" name="casas[desc][refs][entidades][nome][]" placeholder="Nome da Entidade">
+            <input class="w3-input" type="text" name="casas[desc][refs][entidades][tipo][]" placeholder="Tipo da Entidade">
+          </div>
+          <button class="w3-button w3-green" type="button" onclick="addCasaEntidade(this)">Adicionar Entidade</button>
+        </div>
+        <div class="refs-lugares-container">
+          <label>Lugares:</label>
+          <div class="lugar">
+            <input class="w3-input" type="text" name="casas[desc][refs][lugares][nome][]" placeholder="Nome do Lugar">
+            <input class="w3-input" type="text" name="casas[desc][refs][lugares][norm][]" placeholder="Norm (opcional)">
+          </div>
+          <button class="w3-button w3-green" type="button" onclick="addCasaLugar(this)">Adicionar Lugar</button>
+        </div>
+        <div class="refs-datas-container">
+          <label>Datas:</label>
+          <div class="data">
+            <input class="w3-input" type="text" name="casas[desc][refs][datas][]" placeholder="Data">
+          </div>
+          <button class="w3-button w3-green" type="button" onclick="addCasaData(this)">Adicionar Data</button>
+        </div>
+      `;
       container.appendChild(div);
     }
-  
+
+    function addCasaEntidade(button) {
+      var container = button.closest('.refs-entidades-container');
+      var div = document.createElement('div');
+      div.className = 'entidade';
+      div.innerHTML = '<input class="w3-input" type="text" name="casas[desc][refs][entidades][nome][]" placeholder="Nome da Entidade"><input class="w3-input" type="text" name="casas[desc][refs][entidades][tipo][]" placeholder="Tipo da Entidade">';
+      container.appendChild(div);
+    }
+
+    function addCasaLugar(button) {
+      var container = button.closest('.refs-lugares-container');
+      var div = document.createElement('div');
+      div.className = 'lugar';
+      div.innerHTML = '<input class="w3-input" type="text" name="casas[desc][refs][lugares][nome][]" placeholder="Nome do Lugar"><input class="w3-input" type="text" name="casas[desc][refs][lugares][norm][]" placeholder="Norm (opcional)">';
+      container.appendChild(div);
+    }
+
+    function addCasaData(button) {
+      var container = button.closest('.refs-datas-container');
+      var div = document.createElement('div');
+      div.className = 'data';
+      div.innerHTML = '<input class="w3-input" type="text" name="casas[desc][refs][datas][]" placeholder="Data">';
+      container.appendChild(div);
+    }

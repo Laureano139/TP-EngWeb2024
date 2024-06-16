@@ -119,6 +119,7 @@ router.get('/criar', function(req, res) {
   res.render('novaRua', { "Data": date });
 });
 
+
 router.post('/criar', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: 'atual', maxCount: 10 }]), function(req, res) {  
   var rua = {
     _id: req.body._id,
@@ -141,6 +142,7 @@ router.post('/criar', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: '
   };
 
   console.log('Request body:', req.body);
+  
   // Processar entidades
   if (req.body.entidades && req.body.entidades.nome && req.body.entidades.tipo) {
     for (let i = 0; i < req.body.entidades.nome.length; i++) {
@@ -161,30 +163,54 @@ router.post('/criar', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: '
     }
   }
 
-
   // Processar datas
   if (req.body.datas) {
     rua.paragrafo.refs.datas = req.body.datas;
   }
 
-  console.log('ola');
-
-  
+  // Processar casas
   if (req.body.casas && req.body.casas.numero) {
     for (let i = 0; i < req.body.casas.numero.length; i++) {
-      rua.casas.push({
+      let casa = {
         numero: req.body.casas.numero[i],
         enfiteutas: req.body.casas.enfiteutas[i] || '',
         foro: req.body.casas.foro[i] || '',
         desc: {
           texto: req.body.casas.desc.texto[i] || '',
           refs: {
-            entidades: JSON.parse(req.body.casas.desc.refs.entidades[i] || '[]'),
-            lugares: JSON.parse(req.body.casas.desc.refs.lugares[i] || '[]'),
-            datas: JSON.parse(req.body.casas.desc.refs.datas[i] || '[]')
+            entidades: [],
+            lugares: [],
+            datas: []
           }
         }
-      });
+      };
+
+      // Processar entidades das casas
+      if (req.body.casas.desc.refs.entidades && req.body.casas.desc.refs.entidades.nome) {
+        for (let j = 0; j < req.body.casas.desc.refs.entidades.nome.length; j++) {
+          casa.desc.refs.entidades.push({
+            nome: req.body.casas.desc.refs.entidades.nome[j],
+            tipo: req.body.casas.desc.refs.entidades.tipo[j]
+          });
+        }
+      }
+
+      // Processar lugares das casas
+      if (req.body.casas.desc.refs.lugares && req.body.casas.desc.refs.lugares.nome) {
+        for (let j = 0; j < req.body.casas.desc.refs.lugares.nome.length; j++) {
+          casa.desc.refs.lugares.push({
+            nome: req.body.casas.desc.refs.lugares.nome[j],
+            norm: req.body.casas.desc.refs.lugares.norm[j]
+          });
+        }
+      }
+
+      // Processar datas das casas
+      if (req.body.casas.desc.refs.datas) {
+        casa.desc.refs.datas = req.body.casas.desc.refs.datas;
+      }
+
+      rua.casas.push(casa);
     }
   }
   
@@ -223,10 +249,9 @@ router.post('/criar', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: '
       });
     });
   }
-
+  
   console.log('Creating rua:', rua);
   res.status(200).redirect('/');
-  
   
   // Enviar requisição para o serviço externo (exemplo com Axios)
   axios.post('http://localhost:1893/ruas/', rua)
@@ -238,8 +263,8 @@ router.post('/criar', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: '
       console.error('Error:', error);
       res.status(500).render('error', { error: error }); // Renderizar página de erro em caso de falha
     });
-    
 });
+
 // --------------------------------------------------------------//
 
 

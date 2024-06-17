@@ -11,19 +11,19 @@ block content
         
         .w3-container
           label(for="numero") Número:
-          input.w3-input(type="text" name="numero" value=rua.numero required)
+          input.w3-input(type="text", name="numero" value=rua.numero required)
 
         .w3-container
           label(for="nome") Nome:
-          input.w3-input(type="text" name="nome" value=rua.nome required)
+          input.w3-input(type="text", name="nome" value=rua.nome required)
         
         .w3-container
           label(for="latitude") Latitude:
-          input.w3-input(type="text" name="latitude" value=rua.pos.latitude required)
+          input.w3-input(type="text", name="latitude" value=rua.pos.latitude required)
 
         .w3-container
           label(for="longitude") Longitude:
-          input.w3-input(type="text" name="longitude" value=rua.pos.longitude required)
+          input.w3-input(type="text", name="longitude" value=rua.pos.longitude required)
         
         .w3-container.w3-center.w3-margin-top
           hr
@@ -44,7 +44,7 @@ block content
                       input(type="hidden", name="figuras_atual_paths[]" value=figura.imagem.path)
                       label(for="legenda_atual") Legenda:
                       input.w3-input(type="text", name="legenda_atual[]" value=figura.legenda)
-                      button.w3-button.w3-red(type="button", onclick=`removeFigura('figura-atual-${index}')`) Apagar
+                      button.w3-button.w3-red(type="button", onclick=`removeFigura("figura-atual-${index}")`) Apagar
 
         .w3-container.w3-center.w3-margin-top
           hr
@@ -65,7 +65,10 @@ block content
                       input(type="hidden", name="figuras_antigas_paths[]" value=figura.imagem.path)
                       label(for="legenda_antiga") Legenda:
                       input.w3-input(type="text", name="legenda_antiga[]" value=figura.legenda)
-                      button.w3-button.w3-red(type="button", onclick=`removeFigura('figura-antiga-${index}')`) Apagar
+                      button.w3-button.w3-red(type="button", onclick=`removeFigura("figura-antiga-${index}")`) Apagar
+
+        .w3-container.w3-center.w3-margin-top
+          hr
 
         // Seção para upload de novas imagens
         .w3-container.w3-center.w3-margin-top
@@ -144,37 +147,45 @@ block content
         .w3-container.w3-center
           h3
             b Casas
-          table.w3-table-all.w3-margin-top
-            thead
-              tr.w3-grey
-                th Casa
-                th Dono
-                th Custo
-                th Sobre
-            tbody.casas-container
-              each casa, index in rua.casas
-                tr
-                  td
-                    input.w3-input(type="text", name="casas[numero][]" value=casa.numero)
-                  td
-                    input.w3-input(type="text", name="casas[enfiteutas][]" value=casa.enfiteutas)
-                  td
-                    input.w3-input(type="text", name="casas[foro][]" value=casa.foro)
-                  td
-                    textarea.w3-input(name="casas[desc][texto][]" placeholder="Descrição")= casa.desc.texto
-                    .refs-entidades-container
-                      each entidade, idx in casa.desc.refs.entidades
-                        input.w3-input(type="text", name=`casas[desc][refs][entidades][${index}][]` value=entidade.nome placeholder="Entidade Nome")
-                        input.w3-input(type="text", name=`casas[desc][refs][entidades-tipo][${index}][]` value=entidade.tipo placeholder="Entidade Tipo")
-                    .refs-lugares-container
-                      each lugar, idx in casa.desc.refs.lugares
-                        input.w3-input(type="text", name=`casas[desc][refs][lugares][${index}][]` value=lugar.nome placeholder="Lugar Nome")
-                        input.w3-input(type="text", name=`casas[desc][refs][lugares-norm][${index}][]` value=lugar.norm placeholder="Lugar Norm")
-                    .refs-datas-container
-                      each data, idx in casa.desc.refs.datas
-                        input.w3-input(type="text", name=`casas[desc][refs][datas][${index}][]` value=data placeholder="Data")
-
-            button.w3-button.w3-green(type="button", onclick="addNovaCasa()") Adicionar Nova Casa
+          .casas-container
+            each casa, index in rua.casas
+              .w3-card.w3-margin-bottom.w3-padding
+                .w3-container
+                  h4 Casa #{casa.numero}
+                .w3-container
+                  label(for="numero") Número:
+                  input.w3-input(type="text", name="casas[numero][]" value=casa.numero)
+                .w3-container
+                  label(for="enfiteutas") Dono:
+                  input.w3-input(type="text", name="casas[enfiteutas][]" value=casa.enfiteutas)
+                .w3-container
+                  label(for="foro") Custo:
+                  input.w3-input(type="text", name="casas[foro][]" value=casa.foro)
+                .w3-container
+                  label(for="desc_texto") Sobre:
+                  textarea.w3-input(name="casas[desc][texto][]" placeholder="Descrição")= casa.desc.texto
+                .w3-container
+                  label Entidades:
+                  .refs-entidades-container
+                    each entidade, idx in casa.desc.refs.entidades
+                      input.w3-input(type="text", name=`casas[desc][refs][entidades][${index}][]` value=entidade.nome placeholder="Entidade Nome")
+                      input.w3-input(type="text", name=`casas[desc][refs][entidades-tipo][${index}][]` value=entidade.tipo placeholder="Entidade Tipo")
+                  button.w3-button.w3-green(type="button", onclick=`addCasaEntidade(${index}, this)`) Adicionar Entidade
+                .w3-container
+                  label Lugares:
+                  .refs-lugares-container
+                    each lugar, idx in casa.desc.refs.lugares
+                      input.w3-input(type="text", name=`casas[desc][refs][lugares][${index}][]` value=lugar.nome placeholder="Lugar Nome")
+                      input.w3-input(type="text", name=`casas[desc][refs][lugares-norm][${index}][]` value=lugar.norm)
+                  button.w3-button.w3-green(type="button", onclick=`addCasaLugar(${index}, this)`) Adicionar Lugar
+                .w3-container
+                  label Datas:
+                  .refs-datas-container
+                    each data, idx in casa.desc.refs.datas
+                      input.w3-input(type="text", name=`casas[desc][refs][datas][${index}][]` value=data placeholder="Data")
+                  button.w3-button.w3-green(type="button", onclick=`addCasaData(${index}, this)`) Adicionar Data
+                
+          button.w3-button.w3-green(type="button", onclick="addNovaCasa()") Adicionar Nova Casa
 
         .w3-container.w3-center.w3-margin-top
           button.w3-button.w3-green(type="submit") Salvar
@@ -246,31 +257,75 @@ block content
     function addNovaCasa() {
       const container = document.querySelector('.casas-container');
       const index = container.children.length;
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>
+      const div = document.createElement('div');
+      div.className = 'w3-card w3-margin-bottom w3-padding';
+      div.innerHTML = `
+        <div class="w3-container">
+          <h4>Casa ${index + 1}</h4>
+        </div>
+        <div class="w3-container">
+          <label for="numero">Número:</label>
           <input class="w3-input" type="text" name="casas[numero][]" placeholder="Número da Casa">
-        </td>
-        <td>
+        </div>
+        <div class="w3-container">
+          <label for="enfiteutas">Dono:</label>
           <input class="w3-input" type="text" name="casas[enfiteutas][]" placeholder="Enfiteutas">
-        </td>
-        <td>
+        </div>
+        <div class="w3-container">
+          <label for="foro">Custo:</label>
           <input class="w3-input" type="text" name="casas[foro][]" placeholder="Foro">
-        </td>
-        <td>
+        </div>
+        <div class="w3-container">
+          <label for="desc_texto">Sobre:</label>
           <textarea class="w3-input" name="casas[desc][texto][]" placeholder="Descrição"></textarea>
+        </div>
+        <div class="w3-container">
+          <label>Entidades:</label>
           <div class="refs-entidades-container">
             <input class="w3-input" type="text" name="casas[desc][refs][entidades][${index}][]" placeholder="Entidade Nome">
             <input class="w3-input" type="text" name="casas[desc][refs][entidades-tipo][${index}][]" placeholder="Entidade Tipo">
           </div>
+          <button class="w3-button w3-green" type="button" onclick="addCasaEntidade(${index}, this)">Adicionar Entidade</button>
+        </div>
+        <div class="w3-container">
+          <label>Lugares:</label>
           <div class="refs-lugares-container">
             <input class="w3-input" type="text" name="casas[desc][refs][lugares][${index}][]" placeholder="Lugar Nome">
             <input class="w3-input" type="text" name="casas[desc][refs][lugares-norm][${index}][]" placeholder="Lugar Norm">
           </div>
+          <button class="w3-button w3-green" type="button" onclick="addCasaLugar(${index}, this)">Adicionar Lugar</button>
+        </div>
+        <div class="w3-container">
+          <label>Datas:</label>
           <div class="refs-datas-container">
             <input class="w3-input" type="text" name="casas[desc][refs][datas][${index}][]" placeholder="Data">
           </div>
-        </td>
+          <button class="w3-button w3-green" type="button" onclick="addCasaData(${index}, this)">Adicionar Data</button>
+        </div>
       `;
-      container.appendChild(tr);
+      container.appendChild(div);
+    }
+
+    function addCasaEntidade(index, button) {
+      var container = button.previousElementSibling;
+      var div = document.createElement('div');
+      div.className = 'entidade';
+      div.innerHTML = `<input class="w3-input" type="text" name="casas[desc][refs][entidades][${index}][]" placeholder="Entidade Nome"><input class="w3-input" type="text" name="casas[desc][refs][entidades-tipo][${index}][]" placeholder="Entidade Tipo">`;
+      container.appendChild(div);
+    }
+
+    function addCasaLugar(index, button) {
+      var container = button.previousElementSibling;
+      var div = document.createElement('div');
+      div.className = 'lugar';
+      div.innerHTML = `<input class="w3-input" type="text" name="casas[desc][refs][lugares][${index}][]" placeholder="Lugar Nome"><input class="w3-input" type="text" name="casas[desc][refs][lugares-norm][${index}][]" placeholder="Lugar Norm">`;
+      container.appendChild(div);
+    }
+
+    function addCasaData(index, button) {
+      var container = button.previousElementSibling;
+      var div = document.createElement('div');
+      div.className = 'data';
+      div.innerHTML = `<input class="w3-input" type="text" name="casas[desc][refs][datas][${index}][]" placeholder="Data">`;
+      container.appendChild(div);
     }

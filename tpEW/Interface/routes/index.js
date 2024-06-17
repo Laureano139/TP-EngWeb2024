@@ -84,15 +84,18 @@ router.get('/delete/:id', function(req, res) {
     rua.figuras.forEach(figura => {
       imagePaths.push(figura.imagem.path);
     });
+       
+    const publicPath = path.resolve(__dirname, '../public');
 
     // Delete image files
-    imagePaths.forEach(imagePath => {
-      imagePath = "/public" + imagePath.slice(2);
-      fs.unlink(imagePath, err => {
+    imagePaths.forEach(relativePath => {
+      const absolutePath = path.join(publicPath, relativePath.slice(2)); // Remover os dois pontos e obter o caminho absoluto
+      console.log(`Trying to delete file: ${absolutePath}`); // Adicionar log para verificar o caminho
+      fs.unlink(absolutePath, err => {
         if (err) {
-          console.error(`Error deleting file ${imagePath}:`, err);
+          console.error(`Error deleting file ${absolutePath}:`, err);
         } else {
-          console.log(`File ${imagePath} successfully deleted`);
+          console.log(`File ${absolutePath} successfully deleted`);
         }
       });
     });
@@ -447,24 +450,19 @@ router.post('/editar/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { na
           });
         }
 
-        const projectRoot = path.resolve(__dirname, '..'); // Get the project root
-        const publicDir = path.join(projectRoot, 'public');
-              
         console.log('updatedRua_3:', updatedRua);
         console.log('paths_eliminados:', paths_eliminados);
-              
         // Remover imagens apagadas 
+        const publicPath = path.resolve(__dirname, '../public');
+
         paths_eliminados.forEach(relativePath => {
-          // Remove leading "../" from relativePath
-          const sanitizedPath = relativePath.replace(/^\.\.\//, '');
-          const fullPath = path.join(publicDir, sanitizedPath);
-          console.log('fullPath:', fullPath);
-        
-          fs.unlink(fullPath, err => {
+          const absolutePath = path.join(publicPath, relativePath.slice(2)); // Remover os dois pontos e obter o caminho absoluto
+          console.log(`Trying to delete file: ${absolutePath}`); // Adicionar log para verificar o caminho
+          fs.unlink(absolutePath, err => {
             if (err) {
-              console.error(`Error deleting file ${fullPath}:`, err);
+              console.error(`Error deleting file ${absolutePath}:`, err);
             } else {
-              console.log(`File ${fullPath} successfully deleted`);
+              console.log(`File ${absolutePath} successfully deleted`);
             }
           });
         });

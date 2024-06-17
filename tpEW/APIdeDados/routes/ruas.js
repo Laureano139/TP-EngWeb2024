@@ -82,7 +82,7 @@ router.post('/', function(req, res) {
 
 // Publicar comentário
 
-router.post("/post/:id", function(req,res,next) {
+router.post("/:id/post", function(req,res,next) {
   Rua.adicionarComentario(req.params.id, req.body)
   .then(resp => { res.status(200).jsonp(resp) })
   .catch(erro => { res.status(509).jsonp(erro) })
@@ -93,7 +93,6 @@ router.delete("/:id", function(req, res) {
     .then(data => res.jsonp(data))
     .catch(erro => res.jsonp(erro))
 });
-
 
 
 router.delete("/unpost/:id", function(req,res,next) {

@@ -269,7 +269,7 @@ router.post('/criar', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: '
 });
 
 // Publicar Comentário
-router.post('/:id', function(req, res) {
+router.post('/:id/post', function(req, res) {
   req.body.data = Date().substring(0,24);
   // levelUser = "Utilizador"
   // tokenBool = false
@@ -289,9 +289,9 @@ router.post('/:id', function(req, res) {
   // req.body.autor = username
   console.log(req.body)
   console.log("---------> REQ PARAMS ID: " + req.params.id)
-  axios.post("http://localhost:1893/ruas/post/" + req.params.id, req.body)
+  axios.post("http://localhost:1893/ruas/" + req.params.id + "/post", req.body)
     .then(response => {
-        res.redirect("/ruas/" + req.params.id);
+        res.redirect("/" + req.params.id);
     })
     .catch(erro => {
       res.render("error", {message: "erro ao publicar comentário na rua", error : erro})
@@ -555,8 +555,6 @@ router.get('/:id', function(req, res, next) {
         rua.paragrafo.texto = rua.paragrafo.texto.replace(regex, '<b>' + data + '</b>');
       });
     }
-    
-
     res.status(200).render('rua', { "Rua": rua, "Data": date });
   })
   .catch(error => {

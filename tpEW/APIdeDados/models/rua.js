@@ -41,6 +41,7 @@ var casasSchema = new mongoose.Schema({
 }, { _id: false });
 
 var comentarioSchema = new mongoose.Schema({
+    // _id: String,
     autor: String,
     data: String,
     texto: String

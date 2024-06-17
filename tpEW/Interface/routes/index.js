@@ -546,56 +546,8 @@ router.get('/lugares/:lugar', function(req, res, next) {
 });
 
 
-router.get('/:id', function(req, res, next) {
-  levelUser="Utilizador"
-  tokenBool = false
-  if(req.cookies && req.cookies.token){
-    token = req.cookies.token
-    tokenBool = true
-    try {
-      const tk = jwt.verify(token, 'EngWeb2024RuasDeBraga');
-      levelUser = tk.level;
-    } catch (e) {
-      tokenBool=false
-    }
-  }
-  var date = new Date().toISOString().substring(0, 16);
-  axios.get('http://localhost:1893/ruas/' + req.params.id)
-    .then(resp => {
-      var rua = resp.data;
-      if (rua.paragrafo && rua.paragrafo.refs) {
-        var entidades = [...new Set (rua.paragrafo.refs.entidades)];
-        var lugares = [...new Set (rua.paragrafo.refs.lugares)];
-        var datas = [...new Set(rua.paragrafo.refs.datas)];
 
-        function escapeRegExp(string) {
-          return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        }
-        function safeReplace(text, searchValue, replaceValue) {
-          const regex = new RegExp(`\\b${escapeRegExp(searchValue)}\\b`, 'g');
-          return text.replace(regex, replaceValue);
-        }
-        if (rua.paragrafo.texto) {
-          entidades.forEach(entidade => {
-            rua.paragrafo.texto = safeReplace(rua.paragrafo.texto, entidade.nome, `<a href="http://localhost:1894/entidades/${encodeURIComponent(entidade.nome)}">${entidade.nome}</a>`);
-          });
 
-          lugares.forEach(lugar => {
-            rua.paragrafo.texto = safeReplace(rua.paragrafo.texto, lugar.nome, `<a href="http://localhost:1894/lugares/${encodeURIComponent(lugar.nome)}">${lugar.nome}</a>`);
-          });
-
-          datas.forEach(data => {
-            rua.paragrafo.texto = safeReplace(rua.paragrafo.texto, data, `<a href="http://localhost:1894/datas/${data}">${data}</a>`);
-          });
-        }
-      }
-      res.status(200).render('rua', { "Rua": rua, "Data": date });
-    })
-    .catch(error => {
-      console.log(error);
-      res.status(500).render('error', { "error": error });
-    });
-});
 
 router.get('/register', function(req,res) {
   tokenBool = false
@@ -643,7 +595,74 @@ router.get('/login', function(req, res){
   res.render('loginForm', {t: tokenBool})
 })
 
-router.post('/register',verificaToken, function(req, res){
+
+
+router.get('/:id', function(req, res, next) {
+  levelUser="Utilizador"
+  tokenBool = false
+  if(req.cookies && req.cookies.token){
+    token = req.cookies.token
+    tokenBool = true
+    try {
+      const tk = jwt.verify(token, 'EngWeb2024RuasDeBraga');
+      levelUser = tk.level;
+    } catch (e) {
+      tokenBool=false
+    }
+  }
+  var date = new Date().toISOString().substring(0, 16);
+  axios.get('http://localhost:1893/ruas/' + req.params.id)
+    .then(resp => {
+      var rua = resp.data;
+      if (rua.paragrafo && rua.paragrafo.refs) {
+        var entidades = rua.paragrafo.refs.entidades.reduce((unique, entidade) => {
+            if (!unique.some(obj => obj.nome === entidade.nome)) {
+              unique.push(entidade);
+            }
+            return unique;
+        }, []);
+
+        var lugares = rua.paragrafo.refs.lugares.reduce((unique, lugar) => {
+            if (!unique.some(obj => obj.nome === lugar.nome)) {
+              unique.push(lugar);
+            }
+            return unique;
+        }, []);
+        var datas = [...new Set(rua.paragrafo.refs.datas)];
+
+
+        function escapeRegExp(string) {
+          return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+        function safeReplace(text, searchValue, replaceValue) {
+          const regex = new RegExp(`\\b${escapeRegExp(searchValue)}\\b`, 'g');
+          return text.replace(regex, replaceValue);
+        }
+        if (rua.paragrafo.texto) {
+          entidades.forEach(entidade => {
+            rua.paragrafo.texto = safeReplace(rua.paragrafo.texto, entidade.nome, `<a href="http://localhost:1894/entidades/${encodeURIComponent(entidade.nome)}">${entidade.nome}</a>`);
+          });
+
+          lugares.forEach(lugar => {
+            rua.paragrafo.texto = safeReplace(rua.paragrafo.texto, lugar.nome, `<a href="http://localhost:1894/lugares/${encodeURIComponent(lugar.nome)}">${lugar.nome}</a>`);
+          });
+
+          datas.forEach(data => {
+            rua.paragrafo.texto = safeReplace(rua.paragrafo.texto, data, `<a href="http://localhost:1894/datas/${data}">${data}</a>`);
+          });
+        }
+      }
+      res.status(200).render('rua', { "Rua": rua, "Data": date });
+    })
+    .catch(error => {
+      console.log(error);
+      res.status(500).render('error', { "error": error });
+    });
+});
+
+
+
+router.post('/register', function(req, res){
   if(req.cookies && req.cookies.token){
     token = req.cookies.token
   }
@@ -656,6 +675,7 @@ router.post('/register',verificaToken, function(req, res){
       res.render('error', {error: e, message: "Credenciais inválidas"})
     })
 })
+
 
 router.post('/login', function(req, res){
   axios.post('http://localhost:1925/users/login', req.body)
@@ -672,5 +692,8 @@ router.post('/logout', verificaToken, function(req, res){
   res.clearCookie('token')
   res.redirect('/')
 })
+
+
+
 
 module.exports = router;

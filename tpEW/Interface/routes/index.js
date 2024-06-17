@@ -60,20 +60,29 @@ var upload = multer({ storage: storage });
 
 
 /* GET pagina com todas as ruas. */
+
 router.get('/', function(req, res, next) {
+  var imagesDir = path.join(__dirname, '../public/atual');
+  fs.readdir(imagesDir, function(err, files) {
+    if (err) {
+      return next(err);
+    }
+    var images = files.map(file => '/atual/' + file);
+    res.render('index', { images: images });
+  });
+});
+
+router.get('/ruas', function(req, res, next) {
   var date = new Date().toISOString().substring(0, 16);
   axios.get('http://localhost:1893/ruas/')
   .then(resp => {
     var ruas = resp.data;
-    res.status(200).render('index', { "Ruas": ruas, "Data": date });
+    res.status(200).render('listaRuas', { "Ruas": ruas, "Data": date });
   })
   .catch(error => {
     res.status(500).render('error', { "error": error });
   });
 });
-
-
-
 
 // Apagar uma Rua
 router.get('/delete/:id', function(req, res) {
@@ -103,7 +112,7 @@ router.get('/delete/:id', function(req, res) {
     // Delete rua
     axios.delete('http://localhost:1893/ruas/' + req.params.id)
     .then(() => {
-      res.status(200).redirect('/');
+      res.status(200).redirect('/ruas');
     })
     .catch(error => {
       res.status(500).render('error', { "error": error });
@@ -254,7 +263,7 @@ router.post('/criar', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: '
   }
   
   console.log('Creating rua:', rua);
-  res.status(200).redirect('/');
+  res.status(200).redirect('/ruas');
   
   // Enviar requisição para o serviço externo (exemplo com Axios)
   axios.post('http://localhost:1893/ruas/', rua)
@@ -302,7 +311,7 @@ router.post('/:id/post', function(req, res) {
 router.get('/:idRua/unpost/:id', verificaToken, function(req,res,next) {
   axios.delete("http://localhost:1893/ruas/unpost/" + req.params.id)
     .then(response => {
-        res.redirect("/ruas/" + req.params.idRua);
+        res.redirect("/" + req.params.idRua);
     })
     .catch(erro => {
       res.render("error", {message: "erro ao eliminar uma casa da respetiva rua", error : erro})
@@ -359,7 +368,7 @@ router.post('/editar/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { na
             texto: req.body.texto
           },
           casas: [],
-          comentarios: []
+          comentarios: req.body.comentarios
         };
 
         // Inicialize uma lista para armazenar os paths
@@ -518,7 +527,7 @@ router.post('/editar/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { na
         // Atualizar a rua no banco de dados
         axios.put(`http://localhost:1893/ruas/${req.params.id}`, updatedRua)
             .then(() => {
-                res.status(200).redirect("/");
+                res.status(200).redirect("/ruas");
             })
             .catch(error => {
                 console.error(error);
@@ -608,15 +617,6 @@ router.get('/:id', function(req, res, next) {
             rua.paragrafo.texto = safeReplace(rua.paragrafo.texto, data, `<a href="http://localhost:1894/datas/${data}">${data}</a>`);
           });
         }
-      }
-
-      if (rua.figuras) {
-        rua.figuras = rua.figuras.map(figura => {
-          if (figura.imagem && figura.imagem.path) {
-            figura.imagem.path = encodeURIComponent(figura.imagem.path);
-          }
-          return figura;
-        });
       }
 
       res.status(200).render('rua', { "Rua": rua, "Data": date });

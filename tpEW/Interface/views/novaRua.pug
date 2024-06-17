@@ -2,8 +2,10 @@ extends layout
 
 block content
   .w3-card-4 
-    header.w3-container.w3-blue
+    header.w3-container.w3-blue.w3-center
       h1 Adicionar Nova Rua
+
+      a.w3-btn.w3-margin-top.w3-border.w3-round-large.w3-text-white(href='/ruas' style='background-color: #4CAF50;') Voltar à lista
 
     .w3-container
       form.w3-container(method="post", action="/criar", enctype="multipart/form-data")

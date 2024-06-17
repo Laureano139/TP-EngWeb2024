@@ -87,10 +87,10 @@ router.get('/ruas', verificaToken, function(req, res, next) {
     }
   }
   var date = new Date().toISOString().substring(0, 16);
-  axios.get('http://localhost:1893/ruas/')
+  axios.get('http://backend:1893/ruas/')
   .then(resp => {
     var ruas = resp.data;
-    res.status(200).render('listaRuas', { "Ruas": ruas, "Data": date, "level": levelUser, "username": username});
+    res.status(200).render('listaRuas', { "Ruas": ruas, "Data": date, "level": levelUser});
   })
   .catch(error => {
     res.status(500).render('error', { "error": error });
@@ -100,7 +100,7 @@ router.get('/ruas', verificaToken, function(req, res, next) {
 // Apagar uma Rua
 // METER AUTH
 router.get('/delete/:id', function(req, res) {
-  axios.get('http://localhost:1893/ruas/' + req.params.id)
+  axios.get('http://backend:1893/ruas/' + req.params.id)
   .then(resp => { 
     var rua = resp.data;
     let imagePaths = [];
@@ -119,7 +119,7 @@ router.get('/delete/:id', function(req, res) {
         }
       });
     });
-    axios.delete('http://localhost:1893/ruas/' + req.params.id)
+    axios.delete('http://backend:1893/ruas/' + req.params.id)
     .then(() => {
       res.status(200).redirect('/ruas');
     })
@@ -281,7 +281,7 @@ router.post('/criar', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: '
   res.status(200).redirect('/ruas');
   
   // Enviar requisição para o serviço externo (exemplo com Axios)
-  axios.post('http://localhost:1893/ruas/', rua)
+  axios.post('http://backend:1893/ruas/', rua)
     .then(resp => {
       console.log('Response:', resp.data);
        // Redirecionar após sucesso
@@ -313,7 +313,7 @@ router.post('/:id/post', verificaToken, function(req, res) {
     }
   }
   req.body.autor = username
-  axios.post("http://localhost:1893/ruas/" + req.params.id + "/post", req.body)
+  axios.post("http://backend:1893/ruas/" + req.params.id + "/post", req.body)
     .then(response => {
         res.redirect("/" + req.params.id);
     })
@@ -324,7 +324,7 @@ router.post('/:id/post', verificaToken, function(req, res) {
 
 router.get('/:idRua/unpost/:id', verificaToken, function(req,res,next) {
   tokenBool=true
-  axios.delete("http://localhost:1893/ruas/" + req.params.idRua + "/unpost/" + req.params.id)
+  axios.delete("http://backend:1893/ruas/" + req.params.idRua + "/unpost/" + req.params.id)
     .then(response => {
         res.redirect("/" + req.params.idRua);
     })
@@ -342,7 +342,7 @@ router.get('/:idRua/unpost/:id', verificaToken, function(req,res,next) {
 
 router.get('/editar/:id', verificaToken, function(req, res) {
   var d = new Date().toISOString().substring(0, 16);
-  axios.get('http://localhost:1893/ruas/' + req.params.id)
+  axios.get('http://backend:1893/ruas/' + req.params.id)
     .then(response => {
       const rua = response.data;
       if (!rua) {
@@ -357,7 +357,7 @@ router.get('/editar/:id', verificaToken, function(req, res) {
 });
 
 router.post('/editar/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: 'atual', maxCount: 10 }]), function(req, res) {
-  axios.get(`http://localhost:1893/ruas/${req.params.id}`)
+  axios.get(`http://backend:1893/ruas/${req.params.id}`)
     .then(response => {
         var rua = response.data;
         var oldFiguras = rua.figuras;
@@ -511,7 +511,7 @@ router.post('/editar/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { na
             }
           });
         });
-        axios.put(`http://localhost:1893/ruas/${req.params.id}`, updatedRua)
+        axios.put(`http://backend:1893/ruas/${req.params.id}`, updatedRua)
             .then(() => {
                 res.status(200).redirect("/ruas");
             })
@@ -540,10 +540,10 @@ router.get('/datas/:data', verificaToken ,function(req, res, next) {
     }
   }
   var date = new Date().toISOString().substring(0, 16);
-  axios.get('http://localhost:1893/ruas?data=' + req.params.data)
+  axios.get('http://backend:1893/ruas?data=' + req.params.data)
   .then(resp => {
     var ruas = resp.data;
-    res.status(200).render('datas', { "Ruas": ruas,  "data": req.params.data, "date": date, "username": username});
+    res.status(200).render('datas', { "Ruas": ruas,  "data": req.params.data, "date": date});
   })
   .catch(error => {
     res.status(500).render('error', { "error": error });
@@ -565,10 +565,10 @@ router.get('/entidades/:entidade', verificaToken, function(req, res, next) {
     }
   }
   var date = new Date().toISOString().substring(0, 16);
-  axios.get('http://localhost:1893/ruas?entidade=' + req.params.entidade)
+  axios.get('http://backend:1893/ruas?entidade=' + req.params.entidade)
   .then(resp => {
     var ruas = resp.data;
-    res.status(200).render('entidades', { "Ruas": ruas, "Entidade": req.params.entidade, "date": date, "username": username});
+    res.status(200).render('entidades', { "Ruas": ruas, "Entidade": req.params.entidade, "date": date});
   })
   .catch(error => {
     res.status(500).render('error', { "error": error });
@@ -590,10 +590,10 @@ router.get('/lugares/:lugar', verificaToken,function(req, res, next) {
     }
   }
   var date = new Date().toISOString().substring(0, 16);
-  axios.get('http://localhost:1893/ruas?lugar=' + req.params.lugar)
+  axios.get('http://backend:1893/ruas?lugar=' + req.params.lugar)
   .then(resp => {
     var ruas = resp.data;
-    res.status(200).render('lugares', { "Ruas": ruas, "Lugar": req.params.lugar, "date": date, "username": username});
+    res.status(200).render('lugares', { "Ruas": ruas, "Lugar": req.params.lugar, "date": date});
   })
   .catch(error => {
     res.status(500).render('error', { "error": error });
@@ -662,7 +662,7 @@ router.get('/:id', function(req, res, next) {
     }
   }
   var date = new Date().toISOString().substring(0, 16);
-  axios.get('http://localhost:1893/ruas/' + req.params.id)
+  axios.get('http://backend:1893/ruas/' + req.params.id)
     .then(resp => {
       var rua = resp.data;
       if (rua.paragrafo && rua.paragrafo.refs) {
@@ -691,19 +691,19 @@ router.get('/:id', function(req, res, next) {
         }
         if (rua.paragrafo.texto) {
           entidades.forEach(entidade => {
-            rua.paragrafo.texto = safeReplace(rua.paragrafo.texto, entidade.nome, `<a href="http://localhost:1894/entidades/${encodeURIComponent(entidade.nome)}">${entidade.nome}</a>`);
+            rua.paragrafo.texto = safeReplace(rua.paragrafo.texto, entidade.nome, `<a href="http://frontend:1894/entidades/${encodeURIComponent(entidade.nome)}">${entidade.nome}</a>`);
           });
 
           lugares.forEach(lugar => {
-            rua.paragrafo.texto = safeReplace(rua.paragrafo.texto, lugar.nome, `<a href="http://localhost:1894/lugares/${encodeURIComponent(lugar.nome)}">${lugar.nome}</a>`);
+            rua.paragrafo.texto = safeReplace(rua.paragrafo.texto, lugar.nome, `<a href="http://frontend:1894/lugares/${encodeURIComponent(lugar.nome)}">${lugar.nome}</a>`);
           });
 
           datas.forEach(data => {
-            rua.paragrafo.texto = safeReplace(rua.paragrafo.texto, data, `<a href="http://localhost:1894/datas/${data}">${data}</a>`);
+            rua.paragrafo.texto = safeReplace(rua.paragrafo.texto, data, `<a href="http://frontend:1894/datas/${data}">${data}</a>`);
           });
         }
       }
-      res.status(200).render('rua', { "Rua": rua, "Data": date, "level": levelUser, "username": username});
+      res.status(200).render('rua', { "Rua": rua, "Data": date, "level": levelUser});
     })
     .catch(error => {
       console.log(error);
@@ -716,7 +716,7 @@ router.post('/register', function(req, res){
   if(req.cookies && req.cookies.token){
     token = req.cookies.token
   }
-  axios.post('http://localhost:1925/users/register?token='+token, req.body)
+  axios.post('http://auth:1925/users/register', req.body)
     .then(response => {
       res.cookie('token', response.data.token)
       res.redirect('/ruas')
@@ -726,9 +726,8 @@ router.post('/register', function(req, res){
     })
 })
 
-
 router.post('/login', function(req, res){
-  axios.post('http://localhost:1925/users/login', req.body)
+  axios.post('http://auth:1925/users/login', req.body)
     .then(response => {
       res.cookie('token', response.data.token)
       res.redirect('/ruas')

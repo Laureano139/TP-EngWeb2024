@@ -15,12 +15,6 @@ router.get('/', auth.verificaAcesso, function(req, res){
     .catch(e => res.status(500).jsonp({error: e}))
 })
 
-router.get('/:id', auth.verificaAcesso, function(req, res){
-  User.getUser(req.params.id)
-    .then(dados => res.status(200).jsonp({dados: dados}))
-    .catch(e => res.status(500).jsonp({error: e}))
-})
-
 router.post('/', auth.verificaAcesso, function(req, res){
   User.addUser(req.body)
     .then(dados => {
@@ -29,8 +23,6 @@ router.post('/', auth.verificaAcesso, function(req, res){
     })
     .catch(e => res.status(500).jsonp({error: e}))
 })
-
-
 
 router.get('/level/:username', (req,res) =>{
   console.log("Oiii")
@@ -68,8 +60,6 @@ router.post('/register', function(req, res) {
 })
   
 router.post('/login', passport.authenticate('local'), function(req, res){
-
-  
   User.getLevel(req.user.username)
     .then(response =>{
 
@@ -89,7 +79,11 @@ router.post('/login', passport.authenticate('local'), function(req, res){
        res.status(507).jsonp({error: e})})
 })
 
-
+router.get('/:id', auth.verificaAcesso, function(req, res){
+  User.getUser(req.params.id)
+    .then(dados => res.status(200).jsonp({dados: dados}))
+    .catch(e => res.status(500).jsonp({error: e}))
+})
 
 router.put('/:id', auth.verificaAcesso, function(req, res) {
   User.updateUser(req.params.id, req.body)

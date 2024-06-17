@@ -1,0 +1,62 @@
+version: '3'
+services:
+  backend:
+    container_name: backend
+    build:
+      context: ./APIdeDados
+      dockerfile: Dockerfile
+    ports:
+      - "1893:1893"
+    depends_on:
+      - mongodb
+    networks:
+      - my_network
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/ruas
+
+  auth:
+    container_name: auth
+    build:
+      context: ./Autenticacao
+      dockerfile: Dockerfile
+    ports:
+      - "1925:1925"
+    depends_on:
+      - mongodb
+      - backend
+    networks:
+      - my_network
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/ruas
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ./Interface
+      dockerfile: Dockerfile
+    ports:
+      - "1894:1894"
+    depends_on:
+      - backend
+      - auth
+    networks:
+      - my_network
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    networks:
+      - my_network
+
+  mongo-seed:
+    image: mongo:latest
+    volumes:
+      - ./APIdeDados/datasetRuasBraga/convertedJSONDataset/ruas.json:/datasetRuasBraga/ruas.json
+    command: mongoimport --host mongodb -d ruas -c ruas --type json --file /datasetRuasBraga/ruas.json --jsonArray
+    networks:
+      - my_network
+
+networks:
+  my_network:
+    driver: bridge

@@ -8,10 +8,17 @@ var LocalStrategy = require('passport-local').Strategy
 
 var mongoose = require('mongoose')
 
-mongoose.connect('mongodb://127.0.0.1/ruas', 
-      { useNewUrlParser: true,
-        useUnifiedTopology: true,
-        serverSelectionTimeoutMS: 5000});
+const mongoUri = process.env.MONGO_URI || 'mongodb://mongodb:27017/ruas';
+
+mongoose.connect(mongoUri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 5000
+}).then(() => {
+    console.log('Connected to MongoDB');
+}).catch((err) => {
+    console.error('Error connecting to MongoDB:', err.message);
+});
 
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'Erro de conexão ao MongoDB...'));

@@ -6,7 +6,6 @@ var multer  = require('multer');
 var fs = require('fs');
 var path = require('path');
 
-
 function verificaToken(req, res, next){
   var myToken 
   if(req.query && req.query.token)
@@ -37,7 +36,6 @@ function ensureDirExists(dir) {
     fs.mkdirSync(dir, { recursive: true });
   }
 }
-
 
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -85,6 +83,7 @@ router.get('/ruas', function(req, res, next) {
 });
 
 // Apagar uma Rua
+// METER AUTH
 router.get('/delete/:id', function(req, res) {
   axios.get('http://localhost:1893/ruas/' + req.params.id)
   .then(resp => { 
@@ -93,13 +92,10 @@ router.get('/delete/:id', function(req, res) {
     rua.figuras.forEach(figura => {
       imagePaths.push(figura.imagem.path);
     });
-       
     const publicPath = path.resolve(__dirname, '../public');
-
-    // Delete image files
     imagePaths.forEach(relativePath => {
-      const absolutePath = path.join(publicPath, relativePath.slice(2)); // Remover os dois pontos e obter o caminho absoluto
-      console.log(`Trying to delete file: ${absolutePath}`); // Adicionar log para verificar o caminho
+      const absolutePath = path.join(publicPath, relativePath.slice(2));
+      console.log(`Trying to delete file: ${absolutePath}`);
       fs.unlink(absolutePath, err => {
         if (err) {
           console.error(`Error deleting file ${absolutePath}:`, err);
@@ -108,8 +104,6 @@ router.get('/delete/:id', function(req, res) {
         }
       });
     });
-
-    // Delete rua
     axios.delete('http://localhost:1893/ruas/' + req.params.id)
     .then(() => {
       res.status(200).redirect('/ruas');
@@ -120,17 +114,27 @@ router.get('/delete/:id', function(req, res) {
   });
 });
 
-
-
-
 //--------------------------------------------------------------//
 // Criar uma Nova Rua
 //--------------------------------------------------------------//
+
 router.get('/criar', function(req, res) {
+  levelUser="Utilizador";
+  tokenBool="false"
+  if(req.cookies && req.cookies.token){
+    token = req.cookies.token
+    tokenBool = true
+
+    jwt.verify(token, 'EngWeb2024RuasDeBraga',(e, payload)=>{
+      if(e){
+        console.log('Token is expired');
+        tokenBool= false
+      }
+    })
+  }
   var date = new Date().toISOString().substring(0, 16);
   res.render('novaRua', { "Data": date });
 });
-
 
 router.post('/criar', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: 'atual', maxCount: 10 }]), function(req, res) {  
   var rua = {
@@ -152,8 +156,6 @@ router.post('/criar', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: '
     },
     casas: []
   };
-
-  console.log('Request body:', req.body);
   
   // Processar entidades
   if (req.body.entidades && req.body.entidades.nome && req.body.entidades.tipo) {
@@ -261,8 +263,6 @@ router.post('/criar', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: '
       });
     });
   }
-  
-  console.log('Creating rua:', rua);
   res.status(200).redirect('/ruas');
   
   // Enviar requisição para o serviço externo (exemplo com Axios)
@@ -278,26 +278,23 @@ router.post('/criar', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: '
 });
 
 // Publicar Comentário
-router.post('/:id/post', function(req, res) {
+router.post('/:id/post', verificaToken, function(req, res) {
   req.body.data = Date().substring(0,24);
-  // levelUser = "Utilizador"
-  // tokenBool = false
+  levelUser = "Utilizador"
+  tokenBool = false
 
-  // if(req.cookies && req.cookies.token){
-  //   token = req.cookies.token
-  //   tokenBool = true
-  //   username= ""
-  //   try {
-  //     const tk = jwt.verify(token, 'EngWeb2024RuasDeBraga');
-  //     username = tk.username;
-  //   } catch (e) {
-  //     tokenBool=false
-  //   }
-  // }
-
-  // req.body.autor = username
-  console.log(req.body)
-  console.log("---------> REQ PARAMS ID: " + req.params.id)
+  if(req.cookies && req.cookies.token){
+    token = req.cookies.token
+    tokenBool = true
+    username= ""
+    try {
+      const tk = jwt.verify(token, 'EngWeb2024RuasDeBraga');
+      username = tk.username;
+    } catch (e) {
+      tokenBool=false
+    }
+  }
+  req.body.autor = username
   axios.post("http://localhost:1893/ruas/" + req.params.id + "/post", req.body)
     .then(response => {
         res.redirect("/" + req.params.id);
@@ -309,6 +306,7 @@ router.post('/:id/post', function(req, res) {
 
 
 router.get('/:idRua/unpost/:id', verificaToken, function(req,res,next) {
+  tokenBool=true
   axios.delete("http://localhost:1893/ruas/unpost/" + req.params.id)
     .then(response => {
         res.redirect("/" + req.params.idRua);
@@ -326,12 +324,11 @@ router.get('/:idRua/unpost/:id', verificaToken, function(req,res,next) {
 // Editar uma Rua
 // --------------------------------------------------------------//
 
-router.get('/editar/:id', function(req, res) {
+router.get('/editar/:id', verificaToken, function(req, res) {
   var d = new Date().toISOString().substring(0, 16);
   axios.get('http://localhost:1893/ruas/' + req.params.id)
     .then(response => {
       const rua = response.data;
-      console.log('id:', response.data._id)
       if (!rua) {
         return res.status(404).json({ message: "Rua não encontrada" });
       }
@@ -344,7 +341,6 @@ router.get('/editar/:id', function(req, res) {
 });
 
 router.post('/editar/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: 'atual', maxCount: 10 }]), function(req, res) {
-  
   axios.get(`http://localhost:1893/ruas/${req.params.id}`)
     .then(response => {
         var rua = response.data;
@@ -370,30 +366,21 @@ router.post('/editar/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { na
           casas: [],
           comentarios: req.body.comentarios
         };
-
-        // Inicialize uma lista para armazenar os paths
         let paths_naoEliminados = [];
-        // Adicione paths das figuras atuais
         if (req.body.figuras_atual_paths) {
           paths_naoEliminados.push(...req.body.figuras_atual_paths);
         }
-
-        // Adicione paths das figuras antigas
         if (req.body.figuras_antigas_paths) {
           paths_naoEliminados.push(...req.body.figuras_antigas_paths);
         }   
         paths_naoEliminados.forEach(path => {
-          // Find the figure in oldFiguras that corresponds to the path
           var fig = oldFiguras.find(figura => figura.imagem.path == path);
           if (fig) {
             updatedRua.figuras.push(fig);
           }
         }); 
-        console.log('paths_naoEliminados ola:', paths_naoEliminados);   
-
         var paths_eliminados = oldFiguras.map(figura => figura.imagem.path).filter(path => !paths_naoEliminados.includes(path));    
         console.log('updatedRua_1:', updatedRua);
-        // Processar entidades
         if (req.body.entidades && req.body.entidades.nome && req.body.entidades.tipo) {
           for (let i = 0; i < req.body.entidades.nome.length; i++) {
             updatedRua.paragrafo.refs.entidades.push({
@@ -402,8 +389,6 @@ router.post('/editar/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { na
             });
           }
         }
-
-        // Processar lugares
         if (req.body.lugares && req.body.lugares.nome && req.body.lugares.norm) {
           for (let i = 0; i < req.body.lugares.nome.length; i++) {
             updatedRua.paragrafo.refs.lugares.push({
@@ -412,15 +397,9 @@ router.post('/editar/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { na
             });
           }
         }
-
-        // Processar datas
         if (req.body.datas) {
           updatedRua.paragrafo.refs.datas = req.body.datas;
         }
-
-        console.log('updatedRua_2:', updatedRua);
-
-      // Processar casas
       if (req.body.casas && req.body.casas.numero) {
           for (let i = 0; i < req.body.casas.numero.length; i++) {
             let entidades = [];
@@ -468,7 +447,6 @@ router.post('/editar/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { na
             });
           }
         }
-        // Processar figuras (imagens) adicionadas
         if (req.files) {
           console.log('req.files:', req.files);
           Object.keys(req.files).forEach(key => {
@@ -504,15 +482,11 @@ router.post('/editar/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { na
             });
           });
         }
-
-        console.log('updatedRua_3:', updatedRua);
-        console.log('paths_eliminados:', paths_eliminados);
-        // Remover imagens apagadas 
         const publicPath = path.resolve(__dirname, '../public');
 
         paths_eliminados.forEach(relativePath => {
-          const absolutePath = path.join(publicPath, relativePath.slice(2)); // Remover os dois pontos e obter o caminho absoluto
-          console.log(`Trying to delete file: ${absolutePath}`); // Adicionar log para verificar o caminho
+          const absolutePath = path.join(publicPath, relativePath.slice(2));
+          console.log(`Trying to delete file: ${absolutePath}`);
           fs.unlink(absolutePath, err => {
             if (err) {
               console.error(`Error deleting file ${absolutePath}:`, err);
@@ -521,10 +495,6 @@ router.post('/editar/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { na
             }
           });
         });
-
-        console.log('Updated Rua 4:', updatedRua);
-
-        // Atualizar a rua no banco de dados
         axios.put(`http://localhost:1893/ruas/${req.params.id}`, updatedRua)
             .then(() => {
                 res.status(200).redirect("/ruas");
@@ -538,6 +508,7 @@ router.post('/editar/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { na
 });
 
 // --------------------------------------------------------------//
+
 router.get('/datas/:data', function(req, res, next) {
   var date = new Date().toISOString().substring(0, 16);
   axios.get('http://localhost:1893/ruas?data=' + req.params.data)
@@ -576,49 +547,48 @@ router.get('/lugares/:lugar', function(req, res, next) {
 
 
 router.get('/:id', function(req, res, next) {
+  levelUser="Utilizador"
+  tokenBool = false
+  if(req.cookies && req.cookies.token){
+    token = req.cookies.token
+    tokenBool = true
+    try {
+      const tk = jwt.verify(token, 'EngWeb2024RuasDeBraga');
+      levelUser = tk.level;
+    } catch (e) {
+      tokenBool=false
+    }
+  }
   var date = new Date().toISOString().substring(0, 16);
-  console.log("---------> REQ PARAMS ID: " + req.params.id);
-  
   axios.get('http://localhost:1893/ruas/' + req.params.id)
     .then(resp => {
       var rua = resp.data;
-      console.log("---------> RUA: ", rua); // Mudança para exibir o objeto completo
-      
       if (rua.paragrafo && rua.paragrafo.refs) {
-        var entidades = rua.paragrafo.refs.entidades;
-        var lugares = rua.paragrafo.refs.lugares;
-        var datas = [...new Set(rua.paragrafo.refs.datas)]; // Elimina duplicatas
+        var entidades = [...new Set (rua.paragrafo.refs.entidades)];
+        var lugares = [...new Set (rua.paragrafo.refs.lugares)];
+        var datas = [...new Set(rua.paragrafo.refs.datas)];
 
-        // Função para escapar caracteres especiais em expressões regulares
         function escapeRegExp(string) {
-          return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& significa a string inteira coincidente
+          return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         }
-
-        // Função para substituir texto no parágrafo de forma segura
         function safeReplace(text, searchValue, replaceValue) {
           const regex = new RegExp(`\\b${escapeRegExp(searchValue)}\\b`, 'g');
           return text.replace(regex, replaceValue);
         }
-        
-        // Substituir cada entidade, lugar e data no texto
         if (rua.paragrafo.texto) {
           entidades.forEach(entidade => {
-            console.log("---------> ENTIDADE: " + entidade.nome);
             rua.paragrafo.texto = safeReplace(rua.paragrafo.texto, entidade.nome, `<a href="http://localhost:1894/entidades/${encodeURIComponent(entidade.nome)}">${entidade.nome}</a>`);
           });
 
           lugares.forEach(lugar => {
-            console.log("---------> LUGAR: " + lugar.nome);
             rua.paragrafo.texto = safeReplace(rua.paragrafo.texto, lugar.nome, `<a href="http://localhost:1894/lugares/${encodeURIComponent(lugar.nome)}">${lugar.nome}</a>`);
           });
 
           datas.forEach(data => {
-            console.log("---------> DATA: " + data);
             rua.paragrafo.texto = safeReplace(rua.paragrafo.texto, data, `<a href="http://localhost:1894/datas/${data}">${data}</a>`);
           });
         }
       }
-
       res.status(200).render('rua', { "Rua": rua, "Data": date });
     })
     .catch(error => {
@@ -626,5 +596,81 @@ router.get('/:id', function(req, res, next) {
       res.status(500).render('error', { "error": error });
     });
 });
+
+router.get('/register', function(req,res) {
+  tokenBool = false
+  if(req.cookies && req.cookies.token){
+    token = req.cookies.token
+    tokenBool = true
+    jwt.verify(token, 'EngWeb2024RuasDeBraga',(e, payload)=>{
+      if(e){
+        console.log('Token is expired');
+        tokenBool= false
+      }
+    })
+  }
+  res.render('registerForm', {t: tokenBool})
+})
+
+router.get('/logout', function(req, res){
+  tokenBool = false
+  if(req.cookies && req.cookies.token){
+    token = req.cookies.token
+    tokenBool = true
+    jwt.verify(token, 'EngWeb2024RuasDeBraga',(e, payload)=>{
+      if(e){
+        console.log('Token is expired');
+        tokenBool= false
+      }
+    })
+  }
+
+  res.render('testeLogout', {t:tokenBool})
+})
+
+router.get('/login', function(req, res){
+  tokenBool = false
+  if(req.cookies && req.cookies.token){
+    token = req.cookies.token
+    tokenBool = true
+    jwt.verify(token, 'EngWeb2024RuasDeBraga',(e, payload)=>{
+      if(e){
+        console.log('Token is expired');
+        tokenBool= false
+      }
+    })
+  }
+  res.render('loginForm', {t: tokenBool})
+})
+
+router.post('/register',verificaToken, function(req, res){
+  if(req.cookies && req.cookies.token){
+    token = req.cookies.token
+  }
+  axios.post('http://localhost:1925/users/register?token='+token, req.body)
+    .then(response => {
+      res.cookie('token', response.data.token)
+      res.redirect('/')
+    })
+    .catch(e =>{
+      res.render('error', {error: e, message: "Credenciais inválidas"})
+    })
+})
+
+router.post('/login', function(req, res){
+  axios.post('http://localhost:1925/users/login', req.body)
+    .then(response => {
+      res.cookie('token', response.data.token)
+      res.redirect('/')
+    })
+    .catch(e =>{
+      res.render('error', {error: e, message: "Credenciais inválidas"})
+    })
+})
+
+router.post('/logout', verificaToken, function(req, res){
+  res.clearCookie('token')
+  res.redirect('/')
+})
 
 module.exports = router;

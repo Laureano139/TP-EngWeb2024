@@ -1,0 +1,18 @@
+extends layout
+
+block content
+
+  main.form-signin.w-100.m-auto.meiodeTudo
+    form(style="top:60px; position: relative;" action="/login" method="POST")
+      h1.h3.mb-3.fw-normal Efetuar Log In
+      br
+      .form-floating
+        input.form-control(type="text", style="width:300px;", name="username")
+        label(for="floatingInput") Username
+      br
+      .form-floating
+        input.form-control(type="password", style="width:300px;", name="password")
+        label(for="floatingPassword") Password
+      br
+  
+      button.btn.btn-primary.w-100.py-2.brincar(type="submit" style="width:300px;" value="Log In") Login

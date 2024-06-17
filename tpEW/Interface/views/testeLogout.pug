@@ -1,0 +1,7 @@
+extends layout 
+
+block content
+    main.form-signin.w-100.m-auto.meiodeTudo
+        form(action="/logout" method="post" style="position:relative; top:50px;")
+            p(style="font-size:30px;") De certeza que deseja efetuar o logout?
+            button.btn.btn-primary.w-100.py-2.brincar(type="submit" style="width:300px;") Logout

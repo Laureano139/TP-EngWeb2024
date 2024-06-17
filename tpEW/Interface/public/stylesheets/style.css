@@ -7,6 +7,11 @@ a {
   color: #00B7FF;
 }
 
+.content {
+	position:relative;
+	top: 20px;
+}
+
 .w3-third {
   display: inline-block;
   float: none;

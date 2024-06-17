@@ -63,7 +63,6 @@ block content
               td
                 p!= casa.desc.texto
     p.wow Posts
-				
       form(method="POST")
         label Comentário
         input.w3-input.w3-round(type="text" name="texto")
@@ -74,7 +73,7 @@ block content
       br
       br
       hr
-      for i in rua.comentarios
+      for i in Rua.comentarios
         hr
         .card.card-white.post
           .post-heading
@@ -87,10 +86,10 @@ block content
           .post-description
             p #{i.texto}
           
-          if(level === "Admin")
-            div.btn-group
-              button.btn.btn-sm.btn-outline-secondary(type="button")
-                a(href="/rua/" + i._id + "/unpost/" + i._id) Eliminar
+          //- if(level === "Admin")
+          //-   div.btn-group
+          //-     button.btn.btn-sm.btn-outline-secondary(type="button")
+          //-       a(href="/rua/" + i._id + "/unpost/" + i._id) Eliminar
 
     br
     footer.w3-container.w3-grey.w3-margin-top

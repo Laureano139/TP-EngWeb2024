@@ -527,9 +527,11 @@ router.post('/editar/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { na
 
 router.get('/:id', function(req, res, next) {
   var date = new Date().toISOString().substring(0, 16);
+  console.log("---------> REQ PARAMS ID: " + req.params.id)
   axios.get('http://localhost:1893/ruas/' + req.params.id)
   .then(resp => {
     var rua = resp.data;
+    console.log("---------> RUA: " + rua)
     
     if (rua.paragrafo && rua.paragrafo.refs) {
       var entidades = rua.paragrafo.refs.entidades;
@@ -554,7 +556,7 @@ router.get('/:id', function(req, res, next) {
     }
     
 
-    res.status(200).render('rua', { "rua": rua, "Data": date });
+    res.status(200).render('rua', { "Rua": rua, "Data": date });
   })
   .catch(error => {
     console.log(error);

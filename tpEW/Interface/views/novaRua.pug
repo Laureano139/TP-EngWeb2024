@@ -33,7 +33,13 @@ block content
           .entidades-container
             .entidade
               input.w3-input(type="text", name="entidades[nome][]" placeholder="Nome da Entidade")
-              input.w3-input(type="text", name="entidades[tipo][]" placeholder="Tipo da Entidade")
+              select.w3-select(name="entidades[tipo][]")
+                option(value="", disabled, selected) -- Selecione o Tipo --
+                option(value="pessoa") Pessoa
+                option(value="instituição") Instituição
+                option(value="empresa") Empresa
+                option(value="família") Família
+
           button.w3-button.w3-green(type="button", onclick="addEntidade()") Adicionar Entidade
 
         // Seção para Lugares
@@ -69,7 +75,13 @@ block content
                 label Entidades:
                 .entidade
                   input.w3-input(type="text", name="casas[desc][refs][entidades][0][nome][]" placeholder="Nome da Entidade")
-                  input.w3-input(type="text", name="casas[desc][refs][entidades][0][tipo][]" placeholder="Tipo da Entidade")
+                  select.w3-select(name="casas[desc][refs][entidades][0][tipo][]")
+                    option(value="", disabled, selected) -- Selecione o Tipo --
+                    option(value="pessoa") Pessoa
+                    option(value="instituição") Instituição
+                    option(value="empresa") Empresa
+                    option(value="família") Família
+
                 button.w3-button.w3-green(type="button", onclick="addCasaEntidade(0, this)") Adicionar Entidade
               .refs-lugares-container
                 label Lugares:
@@ -83,7 +95,7 @@ block content
                   input.w3-input(type="text", name="casas[desc][refs][datas][0][]" placeholder="Data")
                 button.w3-button.w3-green(type="button", onclick="addCasaData(0, this)") Adicionar Data
           button.w3-button.w3-green(type="button", onclick="addCasa()") Adicionar Casa
-      
+
         // Seção para Imagens
         .w3-section.imagem-section
           .imagem-item
@@ -113,7 +125,16 @@ block content
       var container = document.querySelector('.entidades-container');
       var div = document.createElement('div');
       div.className = 'entidade';
-      div.innerHTML = '<input class="w3-input" type="text" name="entidades[nome][]" placeholder="Nome da Entidade"><input class="w3-input" type="text" name="entidades[tipo][]" placeholder="Tipo da Entidade">';
+      div.innerHTML = `
+        <input class="w3-input" type="text" name="entidades[nome][]" placeholder="Nome da Entidade">
+        <select class="w3-select" name="entidades[tipo][]">
+          <option value="" disabled selected>-- Selecione o Tipo --</option>
+          <option value="pessoa">Pessoa</option>
+          <option value="instituição">Instituição</option>
+          <option value="empresa">Empresa</option>
+          <option value="família">Família</option>
+        </select>
+      `;
       container.appendChild(div);
     }
 
@@ -160,7 +181,12 @@ block content
           <label>Entidades:</label>
           <div class="entidade">
             <input class="w3-input" type="text" name="casas[desc][refs][entidades][${casaIndex}][nome][]" placeholder="Nome da Entidade">
-            <input class="w3-input" type="text" name="casas[desc][refs][entidades][${casaIndex}][tipo][]" placeholder="Tipo da Entidade">
+            <select class="w3-select" name="casas[desc][refs][entidades][${casaIndex}][tipo][]">
+              <option value="pessoa">Pessoa</option>
+              <option value="instituição">Instituição</option>
+              <option value="empresa">Empresa</option>
+              <option value="família">Família</option>
+            </select>
           </div>
           <button class="w3-button w3-green" type="button" onclick="addCasaEntidade(${casaIndex}, this)">Adicionar Entidade</button>
         </div>
@@ -187,7 +213,16 @@ block content
       var container = button.closest('.refs-entidades-container');
       var div = document.createElement('div');
       div.className = 'entidade';
-      div.innerHTML = `<input class="w3-input" type="text" name="casas[desc][refs][entidades][${index}][nome][]" placeholder="Nome da Entidade"><input class="w3-input" type="text" name="casas[desc][refs][entidades][${index}][tipo][]" placeholder="Tipo da Entidade">`;
+      div.innerHTML = `
+        <input class="w3-input" type="text" name="casas[desc][refs][entidades][${index}][nome][]" placeholder="Nome da Entidade">
+        <select class="w3-select" name="casas[desc][refs][entidades][${index}][tipo][]">
+          <option value="" disabled selected>-- Selecione o Tipo --</option>
+          <option value="pessoa">Pessoa</option>
+          <option value="instituição">Instituição</option>
+          <option value="empresa">Empresa</option>
+          <option value="família">Família</option>
+        </select>
+      `;
       container.appendChild(div);
     }
 

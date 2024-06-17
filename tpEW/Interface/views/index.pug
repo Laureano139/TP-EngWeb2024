@@ -9,7 +9,6 @@ html(lang="pt")
         var images = !{JSON.stringify(images)};
         var index = 0;
 
-        // Definir a primeira imagem
         $('#slideshow').css('background-image', 'url(' + images[index] + ')');
 
         setInterval(function(){
@@ -72,3 +71,6 @@ html(lang="pt")
       h1 Mapa das Ruas de Braga
       .buttons
         a(href="/ruas") Lista de Ruas
+      .buttons
+        a(href="/login") Login
+        a(href="/register") Registar

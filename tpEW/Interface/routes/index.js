@@ -127,7 +127,7 @@ router.get('/criar', function(req, res) {
 
     jwt.verify(token, 'EngWeb2024RuasDeBraga',(e, payload)=>{
       if(e){
-        console.log('Token is expired');
+        console.log('Token is expired [GET CRIAR]');
         tokenBool= false
       }
     })
@@ -287,11 +287,14 @@ router.post('/:id/post', verificaToken, function(req, res) {
     token = req.cookies.token
     tokenBool = true
     username= ""
+    console.log("Token: " + token)
     try {
       const tk = jwt.verify(token, 'EngWeb2024RuasDeBraga');
       username = tk.username;
+      console.log("User: " + username)
     } catch (e) {
       tokenBool=false
+      console.log("Catch fodeu")
     }
   }
   req.body.autor = username
@@ -545,10 +548,6 @@ router.get('/lugares/:lugar', function(req, res, next) {
   });
 });
 
-
-
-
-
 router.get('/register', function(req,res) {
   tokenBool = false
   if(req.cookies && req.cookies.token){
@@ -556,7 +555,7 @@ router.get('/register', function(req,res) {
     tokenBool = true
     jwt.verify(token, 'EngWeb2024RuasDeBraga',(e, payload)=>{
       if(e){
-        console.log('Token is expired');
+        console.log('Token is expired [GET REGISTER]');
         tokenBool= false
       }
     })
@@ -571,12 +570,11 @@ router.get('/logout', function(req, res){
     tokenBool = true
     jwt.verify(token, 'EngWeb2024RuasDeBraga',(e, payload)=>{
       if(e){
-        console.log('Token is expired');
+        console.log('Token is expired [GET LOGOUT]');
         tokenBool= false
       }
     })
   }
-
   res.render('testeLogout', {t:tokenBool})
 })
 
@@ -584,18 +582,17 @@ router.get('/login', function(req, res){
   tokenBool = false
   if(req.cookies && req.cookies.token){
     token = req.cookies.token
+    console.log("GET LOGIN TOKEN -> " + token)
     tokenBool = true
     jwt.verify(token, 'EngWeb2024RuasDeBraga',(e, payload)=>{
       if(e){
-        console.log('Token is expired');
+        console.log('Token is expired [GET LOGIN]');
         tokenBool= false
       }
     })
   }
   res.render('loginForm', {t: tokenBool})
 })
-
-
 
 router.get('/:id', function(req, res, next) {
   levelUser="Utilizador"
@@ -660,9 +657,8 @@ router.get('/:id', function(req, res, next) {
     });
 });
 
-
-
 router.post('/register', function(req, res){
+  console.log("Register TOKEN: " + req.cookies.token)
   if(req.cookies && req.cookies.token){
     token = req.cookies.token
   }
@@ -692,8 +688,5 @@ router.post('/logout', verificaToken, function(req, res){
   res.clearCookie('token')
   res.redirect('/')
 })
-
-
-
 
 module.exports = router;

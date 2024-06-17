@@ -524,6 +524,41 @@ router.post('/editar/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { na
 });
 
 // --------------------------------------------------------------//
+router.get('/datas/:data', function(req, res, next) {
+  var date = new Date().toISOString().substring(0, 16);
+  axios.get('http://localhost:1893/ruas?data=' + req.params.data)
+  .then(resp => {
+    var ruas = resp.data;
+    res.status(200).render('datas', { "Ruas": ruas,  "data": req.params.data, "date": date });
+  })
+  .catch(error => {
+    res.status(500).render('error', { "error": error });
+  });
+});
+
+router.get('/entidades/:entidade', function(req, res, next) {
+  var date = new Date().toISOString().substring(0, 16);
+  axios.get('http://localhost:1893/ruas?entidade=' + req.params.entidade)
+  .then(resp => {
+    var ruas = resp.data;
+    res.status(200).render('entidades', { "Ruas": ruas, "Entidade": req.params.entidade, "date": date });
+  })
+  .catch(error => {
+    res.status(500).render('error', { "error": error });
+  });
+});
+
+router.get('/lugares/:lugar', function(req, res, next) {
+  var date = new Date().toISOString().substring(0, 16);
+  axios.get('http://localhost:1893/ruas?lugar=' + req.params.lugar)
+  .then(resp => {
+    var ruas = resp.data;
+    res.status(200).render('lugares', { "Ruas": ruas, "Lugar": req.params.lugar, "date": date });
+  })
+  .catch(error => {
+    res.status(500).render('error', { "error": error });
+  });
+});
 
 
 router.get('/:id', function(req, res, next) {
@@ -541,20 +576,29 @@ router.get('/:id', function(req, res, next) {
       
       // Replace each entity, place, and date in the text with its bold version
       entidades.forEach(entidade => {
+        // Criação de uma expressão regular com a flag 'g' para substituição global
         var regex = new RegExp(entidade.nome, 'g');
-        rua.paragrafo.texto = rua.paragrafo.texto.replace(regex, '<b>' + entidade.nome + '</b>');
+        
+        // Substituir o nome da entidade pelo link correspondente
+        rua.paragrafo.texto = rua.paragrafo.texto.replace(regex, `<a href="http://localhost:1894/entidades/${encodeURIComponent(entidade.nome)}">${entidade.nome}</a>`);
       });
-    
+      
       lugares.forEach(lugar => {
+        // Criação de uma expressão regular com a flag 'g' para substituição global
         var regex = new RegExp(lugar.nome, 'g');
-        rua.paragrafo.texto = rua.paragrafo.texto.replace(regex, '<b>' + lugar.nome + '</b>');
+        // Substituir o nome do lugar pelo link correspondente
+        rua.paragrafo.texto = rua.paragrafo.texto.replace(regex, `<a href="http://localhost:1894/lugares/${encodeURIComponent(lugar.nome)}">${lugar.nome}</a>`);
+        // Log para verificação durante o desenvolvimento
+        console.log("---------> LUGAR: " + lugar.nome);
       });
-    
+      
+
       datas.forEach(data => {
         var regex = new RegExp(data, 'g');
-        rua.paragrafo.texto = rua.paragrafo.texto.replace(regex, '<b>' + data + '</b>');
+        rua.paragrafo.texto = rua.paragrafo.texto.replace(regex, `<a href="http://localhost:1894/datas/${data}">${data}</a>`);
       });
     }
+
     res.status(200).render('rua', { "Rua": rua, "Data": date });
   })
   .catch(error => {

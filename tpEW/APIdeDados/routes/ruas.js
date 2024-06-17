@@ -1,36 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var Rua = require('../controllers/rua')
-var multer = require('multer')
-var fs = require('fs')
-var path = require('path')
 
-
-function ensureDirExists(dir) {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-}
-
-
-var storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    let dir = ''
-    if(file.fieldname.startsWith('imagem')){
-      dir = '../Interface/public/imagem';
-    }
-    else if(file.fieldname.startsWith('atual')){
-      dir = '../Interface/public/atual';
-    }
-    ensureDirExists(dir);
-    cb(null, dir)
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname)
-  }
-});
-
-var upload = multer({ storage: storage });
 
 router.get('/', function(req, res) {
   if(req.query.nome){
@@ -95,8 +66,8 @@ router.delete("/:id", function(req, res) {
 });
 
 
-router.delete("/unpost/:id", function(req,res,next) {
-  Rua.removerComentario(req.params.id)
+router.delete("/:idRua/unpost/:id", function(req,res,next) {
+  Rua.removerComentario(req.params.idRua, req.params.id)
   .then(resposta => { res.status(200).jsonp(resposta) })
   .catch(erro => { res.status(509).jsonp(erro) })
 });

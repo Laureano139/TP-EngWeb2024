@@ -50,16 +50,20 @@ module.exports.findRuaByNome = (nome) => {
 
 module.exports.listaRuasByData = async (data) => {
   const regexSearch = new RegExp(data, 'gi');
-  return Rua.find({
-      $or: [
-          { "casas.desc.refs.datas": regexSearch },
-          { "paragrafo.refs.datas": regexSearch }
-      ]
-  })
-  .setOptions({ sanitizeFilter: true })
-  .sort({ numero: 1 })
-  .exec()
-  .then(ruas => ruas.map(rua => ({
+  
+  // Primeiro, obtenha os IDs únicos das ruas
+  const ruaIds = await Rua.distinct('_id', {
+    $or: [
+      { "casas.desc.refs.datas": regexSearch },
+      { "paragrafo.refs.datas": regexSearch }
+    ]
+  });
+
+  // Em seguida, obtenha os documentos completos para esses IDs
+  return Rua.find({ _id: { $in: ruaIds } })
+    .sort({ numero: 1 })
+    .exec()
+    .then(ruas => ruas.map(rua => ({
       _id: rua._id,
       numero: rua.numero,
       nome: rua.nome,
@@ -68,7 +72,7 @@ module.exports.listaRuasByData = async (data) => {
       paragrafo: rua.paragrafo,
       casas: rua.casas,
       comentarios: rua.comentarios
-  })));
+    })));
 };
 
 module.exports.listaRuasByLugar = async (lugar) => {
@@ -128,16 +132,17 @@ module.exports.adicionarComentario = (ruaID, comentario) => {
   });
 };
 
-module.exports.removerComentario = (commentID) => {
+module.exports.removerComentario = (idRua, commentID) => {
   return Rua
-  .updateOne(
-      { "comentarios._id": commentID},
-      { $pull: { comentarios: { _id: commentID } } }
+    .findOneAndUpdate(
+      { _id: idRua },
+      { $pull: { comentarios: { _id: commentID } } },
+      { new: true }
     )
-  .then(resposta => {
+    .then(resposta => {
       return resposta;
-  })
-  .catch(erro => {
+    })
+    .catch(erro => {
       return erro;
-  });
+    });
 };

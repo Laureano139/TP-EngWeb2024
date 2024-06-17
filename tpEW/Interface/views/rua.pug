@@ -62,6 +62,35 @@ block content
               td= casa.foro
               td
                 p!= casa.desc.texto
+    p.wow Posts
+				
+      form(method="POST")
+        label Comentário
+        input.w3-input.w3-round(type="text" name="texto")
+
+        button.w3-btn.w3-mb-2(type="submit") Publicar
+
+
+      br
+      br
+      hr
+      for i in rua.comentarios
+        hr
+        .card.card-white.post
+          .post-heading
+
+            .float-left.meta
+              .title.h5
+                b #{i.autor}
+                |  fez um post.
+              h6.text-muted.time #{i.data}
+          .post-description
+            p #{i.texto}
+          
+          if(level === "Admin")
+            div.btn-group
+              button.btn.btn-sm.btn-outline-secondary(type="button")
+                a(href="/rua/" + i._id + "/unpost/" + i._id) Eliminar
 
     br
     footer.w3-container.w3-grey.w3-margin-top

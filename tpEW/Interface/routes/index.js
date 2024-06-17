@@ -268,6 +268,46 @@ router.post('/criar', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: '
     });
 });
 
+// Publicar Comentário
+router.post('/:id', verificaToken, function(req, res) {
+  req.body.data = Date().substring(0,24);
+  // levelUser = "Utilizador"
+  // tokenBool = false
+
+  // if(req.cookies && req.cookies.token){
+  //   token = req.cookies.token
+  //   tokenBool = true
+  //   username= ""
+  //   try {
+  //     const tk = jwt.verify(token, 'EngWeb2024RuasDeBraga');
+  //     username = tk.username;
+  //   } catch (e) {
+  //     tokenBool=false
+  //   }
+  // }
+
+  // req.body.autor = username
+  console.log(req.body)
+  axios.post("http://localhost:1893/ruas/post/" + req.params.id, req.body)
+    .then(response => {
+        res.redirect("/ruas/" + req.params.id);
+    })
+    .catch(erro => {
+      res.render("error", {message: "erro ao publicar comentário na rua", error : erro})
+    })
+});
+
+
+router.get('/:idRua/unpost/:id', verificaToken, function(req,res,next) {
+  axios.delete("http://localhost:1893/ruas/unpost/" + req.params.id)
+    .then(response => {
+        res.redirect("/ruas/" + req.params.idRua);
+    })
+    .catch(erro => {
+      res.render("error", {message: "erro ao eliminar uma casa da respetiva rua", error : erro})
+    })
+});
+
 
 // --------------------------------------------------------------//
 
@@ -514,7 +554,7 @@ router.get('/:id', function(req, res, next) {
     }
     
 
-    res.status(200).render('rua', { "Rua": rua, "Data": date });
+    res.status(200).render('rua', { "rua": rua, "Data": date });
   })
   .catch(error => {
     console.log(error);

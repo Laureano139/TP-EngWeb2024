@@ -80,6 +80,7 @@ router.post('/', function(req, res) {
     .catch(erro => res.jsonp(erro));
 });
 
+// Publicar comentário
 
 router.post("/post/:id", function(req,res,next) {
   Rua.adicionarComentario(req.params.id, req.body)

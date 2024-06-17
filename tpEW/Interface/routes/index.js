@@ -269,7 +269,7 @@ router.post('/criar', upload.fields([{ name: 'imagem', maxCount: 10 }, { name: '
 });
 
 // Publicar Comentário
-router.post('/:id', verificaToken, function(req, res) {
+router.post('/:id', function(req, res) {
   req.body.data = Date().substring(0,24);
   // levelUser = "Utilizador"
   // tokenBool = false
@@ -288,6 +288,7 @@ router.post('/:id', verificaToken, function(req, res) {
 
   // req.body.autor = username
   console.log(req.body)
+  console.log("---------> REQ PARAMS ID: " + req.params.id)
   axios.post("http://localhost:1893/ruas/post/" + req.params.id, req.body)
     .then(response => {
         res.redirect("/ruas/" + req.params.id);

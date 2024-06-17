@@ -70,12 +70,27 @@ router.get('/', function(req, res, next) {
   });
 });
 
-router.get('/ruas', function(req, res, next) {
+
+router.get('/ruas', verificaToken, function(req, res, next) {
+  levelUser="Utilizador"
+  tokenBool = false
+  if(req.cookies && req.cookies.token){
+    token = req.cookies.token
+    tokenBool = true
+    try {
+      const tk = jwt.verify(token, 'EngWeb2024RuasDeBraga');
+      levelUser = tk.level;
+      console.log("LEVEL USER -> " + levelUser)
+      username = tk.username
+    } catch (e) {
+      tokenBool=false
+    }
+  }
   var date = new Date().toISOString().substring(0, 16);
   axios.get('http://localhost:1893/ruas/')
   .then(resp => {
     var ruas = resp.data;
-    res.status(200).render('listaRuas', { "Ruas": ruas, "Data": date });
+    res.status(200).render('listaRuas', { "Ruas": ruas, "Data": date, "level": levelUser, "username": username});
   })
   .catch(error => {
     res.status(500).render('error', { "error": error });
@@ -307,10 +322,9 @@ router.post('/:id/post', verificaToken, function(req, res) {
     })
 });
 
-
 router.get('/:idRua/unpost/:id', verificaToken, function(req,res,next) {
   tokenBool=true
-  axios.delete("http://localhost:1893/ruas/unpost/" + req.params.id)
+  axios.delete("http://localhost:1893/ruas/" + req.params.idRua + "/unpost/" + req.params.id)
     .then(response => {
         res.redirect("/" + req.params.idRua);
     })
@@ -318,7 +332,6 @@ router.get('/:idRua/unpost/:id', verificaToken, function(req,res,next) {
       res.render("error", {message: "erro ao eliminar uma casa da respetiva rua", error : erro})
     })
 });
-
 
 // --------------------------------------------------------------//
 
@@ -512,36 +525,75 @@ router.post('/editar/:id', upload.fields([{ name: 'imagem', maxCount: 10 }, { na
 
 // --------------------------------------------------------------//
 
-router.get('/datas/:data', function(req, res, next) {
+router.get('/datas/:data', verificaToken ,function(req, res, next) {
+  levelUser="Utilizador"
+  tokenBool = false
+  if(req.cookies && req.cookies.token){
+    token = req.cookies.token
+    tokenBool = true
+    try {
+      const tk = jwt.verify(token, 'EngWeb2024RuasDeBraga');
+      console.log("LEVEL USER -> " + levelUser)
+      username = tk.username
+    } catch (e) {
+      tokenBool=false
+    }
+  }
   var date = new Date().toISOString().substring(0, 16);
   axios.get('http://localhost:1893/ruas?data=' + req.params.data)
   .then(resp => {
     var ruas = resp.data;
-    res.status(200).render('datas', { "Ruas": ruas,  "data": req.params.data, "date": date });
+    res.status(200).render('datas', { "Ruas": ruas,  "data": req.params.data, "date": date, "username": username});
   })
   .catch(error => {
     res.status(500).render('error', { "error": error });
   });
 });
 
-router.get('/entidades/:entidade', function(req, res, next) {
+router.get('/entidades/:entidade', verificaToken, function(req, res, next) {
+  levelUser="Utilizador"
+  tokenBool = false
+  if(req.cookies && req.cookies.token){
+    token = req.cookies.token
+    tokenBool = true
+    try {
+      const tk = jwt.verify(token, 'EngWeb2024RuasDeBraga');
+      console.log("LEVEL USER -> " + levelUser)
+      username = tk.username
+    } catch (e) {
+      tokenBool=false
+    }
+  }
   var date = new Date().toISOString().substring(0, 16);
   axios.get('http://localhost:1893/ruas?entidade=' + req.params.entidade)
   .then(resp => {
     var ruas = resp.data;
-    res.status(200).render('entidades', { "Ruas": ruas, "Entidade": req.params.entidade, "date": date });
+    res.status(200).render('entidades', { "Ruas": ruas, "Entidade": req.params.entidade, "date": date, "username": username});
   })
   .catch(error => {
     res.status(500).render('error', { "error": error });
   });
 });
 
-router.get('/lugares/:lugar', function(req, res, next) {
+router.get('/lugares/:lugar', verificaToken,function(req, res, next) {
+  levelUser="Utilizador"
+  tokenBool = false
+  if(req.cookies && req.cookies.token){
+    token = req.cookies.token
+    tokenBool = true
+    try {
+      const tk = jwt.verify(token, 'EngWeb2024RuasDeBraga');
+      console.log("LEVEL USER -> " + levelUser)
+      username = tk.username
+    } catch (e) {
+      tokenBool=false
+    }
+  }
   var date = new Date().toISOString().substring(0, 16);
   axios.get('http://localhost:1893/ruas?lugar=' + req.params.lugar)
   .then(resp => {
     var ruas = resp.data;
-    res.status(200).render('lugares', { "Ruas": ruas, "Lugar": req.params.lugar, "date": date });
+    res.status(200).render('lugares', { "Ruas": ruas, "Lugar": req.params.lugar, "date": date, "username": username});
   })
   .catch(error => {
     res.status(500).render('error', { "error": error });
@@ -603,6 +655,8 @@ router.get('/:id', function(req, res, next) {
     try {
       const tk = jwt.verify(token, 'EngWeb2024RuasDeBraga');
       levelUser = tk.level;
+      console.log("LEVEL USER -> " + levelUser)
+      username = tk.username
     } catch (e) {
       tokenBool=false
     }
@@ -649,7 +703,7 @@ router.get('/:id', function(req, res, next) {
           });
         }
       }
-      res.status(200).render('rua', { "Rua": rua, "Data": date });
+      res.status(200).render('rua', { "Rua": rua, "Data": date, "level": levelUser, "username": username});
     })
     .catch(error => {
       console.log(error);
@@ -665,7 +719,7 @@ router.post('/register', function(req, res){
   axios.post('http://localhost:1925/users/register?token='+token, req.body)
     .then(response => {
       res.cookie('token', response.data.token)
-      res.redirect('/')
+      res.redirect('/ruas')
     })
     .catch(e =>{
       res.render('error', {error: e, message: "Credenciais inválidas"})
@@ -677,7 +731,7 @@ router.post('/login', function(req, res){
   axios.post('http://localhost:1925/users/login', req.body)
     .then(response => {
       res.cookie('token', response.data.token)
-      res.redirect('/')
+      res.redirect('/ruas')
     })
     .catch(e =>{
       res.render('error', {error: e, message: "Credenciais inválidas"})

@@ -1,31 +1,34 @@
 extends layout
 
 block content
-    header.w3-container
-      h1(style="font-weight: bold;") Register Form
-    form.w3-container(action="/register" method="POST")
-      legend.formsLabel Level 
-      input.w3-check(type="radio" name="level" value="Utilizador")
-      label User
-      input.w3-check(type="radio" name="level" value="Admin" style="position:relative; left:30px;")
-      label(style="position:relative; left:30px;") Admin
-      br
-      br
-      label.formsLabel Username 
-      input.w3-input(type="text" name="username" style="width:500px;")
-      br
-      label.formsLabel Password 
-      input.w3-input(type="password" name="password" style="width:500px;")
-      br
-      label.formsLabel Name  
-      input.w3-input(type="text" name="name" style="width:500px;")
-      br
-      label.formsLabel Email  
-      input.w3-input(type="email" name="email" style="width:500px;")
-      br
-      label.formsLabel Filiation
-      input.w3-input(type="text" name="filiation" style="width:500px;")
-
-
-      input.w3-btn.notar(type="submit" value="Send")
-
+  .container.mt-5
+    .card
+      .card-header.bg-primary.text-white
+        h1.mb-0 Register Form
+      .card-body
+        form(action="/register" method="POST")
+          .form-group
+            legend Level 
+            div
+              .form-check.form-check-inline
+                input.form-check-input(type="radio" name="level" id="user" value="Utilizador" required)
+                label.form-check-label(for="user") User
+              .form-check.form-check-inline
+                input.form-check-input(type="radio" name="level" id="admin" value="Admin")
+                label.form-check-label(for="admin") Admin
+          .form-group
+            label(for="username") Username
+            input.form-control#username(type="text", name="username" required)
+          .form-group
+            label(for="password") Password
+            input.form-control#password(type="password", name="password" required)
+          .form-group
+            label(for="name") Name
+            input.form-control#name(type="text", name="name" required)
+          .form-group
+            label(for="email") Email
+            input.form-control#email(type="email", name="email" required)
+          .form-group
+            label(for="filiation") Filiation
+            input.form-control#filiation(type="text", name="filiation" required)
+          button.btn.btn-primary(type="submit") Send

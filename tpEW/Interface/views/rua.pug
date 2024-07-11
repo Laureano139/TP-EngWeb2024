@@ -1,98 +1,100 @@
 extends layout
 
 block content
-  nav.w3-bar.w3-aqua
-    div.w3-bar-item.w3-button.w3-hover-none.w3-text-grey.w3-hover-text-white.w3-right
-      a(href='/logout') Logout
-  .w3-card-4
-    header.w3-container.w3-teal
-      h1= Rua.nome
+  nav.navbar.navbar-expand-lg.navbar-light.bg-light
+    a.navbar-brand(href='#') Mapa das Ruas de Braga
+    button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbarNav', aria-controls='navbarNav', aria-expanded='false', aria-label='Toggle navigation')
+      span.navbar-toggler-icon
+    .collapse.navbar-collapse#navbarNav
+      ul.navbar-nav.ml-auto
+        li.nav-item
+          a.nav-link(href='/logout') Logout
 
-    .w3-container.w3-center
-      h3
-        b Vistas atuais
-      .w3-row-padding.w3-margin-top.w3-center
-        each figura in Rua.figuras
-          if figura.imagem.path.startsWith('../atual')
-            .w3-third
-              .w3-card
-                img(src=`${figura.imagem.path.slice(2)}`, style="width:100%")
-                .w3-container
-                  h5= figura.legenda
+  .container.mt-5
+    .card
+      .card-header.bg-primary.text-white
+        h1.mb-0= Rua.nome
 
-    .w3-container.w3-center.w3-margin-top
-      hr
+      .card-body
+        .text-center
+          h3.mt-4.mb-3
+            b Vistas atuais
+          .row
+            each figura in Rua.figuras
+              if figura.imagem.path.startsWith('../atual')
+                .col-md-4.mb-4
+                  .card
+                    img.card-img-top(src=`${figura.imagem.path.slice(2)}`, alt="Imagem atual")
+                    .card-body
+                      h5.card-title= figura.legenda
 
-    .w3-container.w3-center
-      h3
-        b Vistas antigas
-      .w3-row-padding.w3-margin-top.w3-center
-        each figura in Rua.figuras
-          if figura.imagem.path.startsWith('../imagem')
-            .w3-third
-              .w3-card
-                img(src=`${figura.imagem.path.slice(2)}`, style="width:100%")
-                .w3-container
-                  h5= figura.legenda
+        hr
 
-    .w3-container.w3-center.w3-margin-top
-      hr
+        .text-center
+          h3.mt-4.mb-3
+            b Vistas antigas
+          .row
+            each figura in Rua.figuras
+              if figura.imagem.path.startsWith('../imagem')
+                .col-md-4.mb-4
+                  .card
+                    img.card-img-top(src=`${figura.imagem.path.slice(2)}`, alt="Imagem antiga")
+                    .card-body
+                      h5.card-title= figura.legenda
 
-    .w3-container.w3-center
-      h3
-        b Descrição
-      .descricao-box.w3-margin-top
-        p!= Rua.paragrafo.texto
+        hr
 
-    .w3-container.w3-center.w3-margin-top
-      hr
+        .text-center
+          h3.mt-4.mb-3
+            b Descrição
+          .border.p-3
+            p!= Rua.paragrafo.texto
 
-    .w3-container.w3-center
-      h3
-        b Casas
-      table.w3-table-all.w3-margin-top
-        thead
-          tr.w3-teal
-            th Casa
-            th Dono
-            th Custo
-            th Sobre
-        tbody
-          each casa in Rua.casas
-            tr
-              td= casa.numero
-              td= casa.enfiteutas
-              td= casa.foro
-              td
-                p!= casa.desc.texto
+        hr
 
-    .w3-container.w3-center
-      h3
-        b Comentários
-      p.wow Posts
-      form(method="POST", action=`/${Rua._id}/post`)
-        label Comentário
-        input.w3-input.w3-round(type="text" name="texto")
+        .text-center
+          h3.mt-4.mb-3
+            b Casas
+          table.table.table-hover.mt-3
+            thead.thead-dark
+              tr
+                th Casa
+                th Dono
+                th Custo
+                th Sobre
+            tbody
+              each casa in Rua.casas
+                tr
+                  td= casa.numero
+                  td= casa.enfiteutas
+                  td= casa.foro
+                  td
+                    p!= casa.desc.texto
 
-        button.w3-btn.w3-mb-2(type="submit") Publicar
+        hr
 
-    hr
+        .text-center
+          h3.mt-4.mb-3
+            b Comentários
+          p.font-weight-bold Posts
+          form(method="POST", action=`/${Rua._id}/post`)
+            .form-group
+              label(for="texto") Comentário
+              input.form-control(type="text", name="texto", id="texto", placeholder="Escreva seu comentário")
+            button.btn.btn-primary(type="submit") Publicar
 
-    each comentario in Rua.comentarios
-      hr
-      .card.card-white.post
-        .post-heading
-          h5.title Autor: #{comentario.autor}
-          h6.text-muted.time Data: #{comentario.data}
-        .post-description
-          p #{comentario.texto}
-        if(level === "Admin")
-          div.btn-group
-            button.btn.btn-sm.btn-outline-secondary(type="button")
-              a(href="/" + Rua._id + "/unpost/" + comentario._id) Eliminar
+        hr
 
-    hr
+        each comentario in Rua.comentarios
+          .card.card-body.mb-4
+            .d-flex.justify-content-between
+              h5.card-title.mb-1 Autor: #{comentario.autor}
+              h6.text-muted.mb-1 Data: #{comentario.data}
+            p.card-text #{comentario.texto}
+            if(level === "Admin")
+              div.btn-group
+                a.btn.btn-danger.btn-sm(href="/" + Rua._id + "/unpost/" + comentario._id) Eliminar
 
-    footer.w3-container.w3-teal.w3-margin-top.w3-center
-      a.w3-btn.w3-margin-top.w3-border.w3-round-large.w3-text-white(href='/ruas' style='background-color: #4CAF50;') Voltar à lista
-      h5 Generated by Group 38 in #{Data}
+    .card-footer.text-center
+      a.btn.btn-success(href='/ruas') Voltar à lista
+      h5.mt-3.mb-0 Generated by Group 38 in #{Data}

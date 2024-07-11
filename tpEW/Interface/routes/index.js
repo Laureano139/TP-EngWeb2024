@@ -691,15 +691,15 @@ router.get('/:id', function(req, res, next) {
         }
         if (rua.paragrafo.texto) {
           entidades.forEach(entidade => {
-            rua.paragrafo.texto = safeReplace(rua.paragrafo.texto, entidade.nome, `<a href="http://frontend:1894/entidades/${encodeURIComponent(entidade.nome)}">${entidade.nome}</a>`);
+            rua.paragrafo.texto = safeReplace(rua.paragrafo.texto, entidade.nome, `<a href="http://localhost:1894/entidades/${encodeURIComponent(entidade.nome)}">${entidade.nome}</a>`);
           });
 
           lugares.forEach(lugar => {
-            rua.paragrafo.texto = safeReplace(rua.paragrafo.texto, lugar.nome, `<a href="http://frontend:1894/lugares/${encodeURIComponent(lugar.nome)}">${lugar.nome}</a>`);
+            rua.paragrafo.texto = safeReplace(rua.paragrafo.texto, lugar.nome, `<a href="http://localhost:1894/lugares/${encodeURIComponent(lugar.nome)}">${lugar.nome}</a>`);
           });
 
           datas.forEach(data => {
-            rua.paragrafo.texto = safeReplace(rua.paragrafo.texto, data, `<a href="http://frontend:1894/datas/${data}">${data}</a>`);
+            rua.paragrafo.texto = safeReplace(rua.paragrafo.texto, data, `<a href="http://localhost:1894/datas/${data}">${data}</a>`);
           });
         }
       }
